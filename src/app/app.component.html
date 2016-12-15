@@ -1,9 +1,9 @@
 <md-sidenav-layout>
   <md-sidenav #start mode="side" opened="true">
     <md-nav-list>
-      <a md-list-item href="">Overview</a>
-      <a md-list-item href="">Customers</a>
-      <a md-list-item href="">Index Cases</a>
+      <a md-list-item routerLink="/dashboard">Dashboard</a>
+      <a md-list-item routerLink="/customers">Customers</a>
+      <a md-list-item routerLink="/indexcases">Index Cases</a>
     </md-nav-list>
   </md-sidenav>
 
@@ -11,9 +11,7 @@
     <span>PM Learning Viz</span>
   </md-toolbar>
 
-  <md-card>
-    <md-card-title>Overview</md-card-title>
-    <p>My regular content. This will be moved into the proper DOM at runtime.</p>
-  </md-card>
-
+  <div class="main-content">
+    <router-outlet></router-outlet>
+  </div>
 </md-sidenav-layout>
