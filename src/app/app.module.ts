@@ -9,6 +9,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { CustomerBarchartComponent } from './shared/customer-barchart/customer-barchart.component';
 
 const appRoutes: Routes = [
   {
@@ -26,7 +27,8 @@ const appRoutes: Routes = [
   declarations: [
     AppComponent,
     DashboardComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    CustomerBarchartComponent
   ],
   imports: [
     BrowserModule,
