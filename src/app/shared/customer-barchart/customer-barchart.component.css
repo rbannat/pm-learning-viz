@@ -1,6 +1,5 @@
 .d3-customer-barchart {
-  width: 100%;
-  height: 400px;
+  overflow: hidden;
 }
 
 .d3-customer-barchart .axis path,
@@ -10,4 +9,14 @@
 
 .d3-customer-barchart .axis text {
   fill: #999;
+}
+
+.d3-customer-barchart rect {
+  fill: steelblue;
+}
+
+.d3-customer-barchart text {
+  fill: #333;
+  font: 10px sans-serif;
+  text-anchor: end;
 }
