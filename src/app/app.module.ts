@@ -10,11 +10,16 @@ import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { CustomerBarchartComponent } from './shared/customer-barchart/customer-barchart.component';
+import { CustomersComponent } from './customers/customers.component';
 
 const appRoutes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent
+  },
+  {
+    path: 'customers',
+    component: CustomersComponent
   },
   { path: '',
     redirectTo: '/dashboard',
@@ -28,7 +33,8 @@ const appRoutes: Routes = [
     AppComponent,
     DashboardComponent,
     PageNotFoundComponent,
-    CustomerBarchartComponent
+    CustomerBarchartComponent,
+    CustomersComponent
   ],
   imports: [
     BrowserModule,

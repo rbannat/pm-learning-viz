@@ -28,7 +28,7 @@ export class CustomerBarchartComponent implements OnInit {
         data.sort(function (a, b) {
           return b["updateCaseCount"] - a["updateCaseCount"];
         });
-        if(self.topX){data = data.slice(0,self.topX)}
+        if(self.topX){data = data.slice(0,self.topX);}
         self.initChart(data);
       }
     });
