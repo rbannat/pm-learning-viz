@@ -20,3 +20,7 @@
   font: 10px sans-serif;
   text-anchor: end;
 }
+
+.d3-customer-barchart .amount {
+  fill: white;
+}

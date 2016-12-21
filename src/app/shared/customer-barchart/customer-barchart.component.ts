@@ -88,6 +88,7 @@ export class CustomerBarchartComponent implements OnInit {
       })
       .attr("y", barHeight / 2)
       .attr("dy", ".35em")
+      .attr('class', 'amount')
       .text(function (d) {
         return (d['updateCaseCount'] < 5) ? '' : d['updateCaseCount'];
       });
