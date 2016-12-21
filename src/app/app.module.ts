@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { MaterialModule } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { RouterModule, Routes } from '@angular/router';
+import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -12,21 +12,6 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
 import { CustomerBarchartComponent } from './shared/customer-barchart/customer-barchart.component';
 import { CustomersComponent } from './customers/customers.component';
 
-const appRoutes: Routes = [
-  {
-    path: 'dashboard',
-    component: DashboardComponent
-  },
-  {
-    path: 'customers',
-    component: CustomersComponent
-  },
-  { path: '',
-    redirectTo: '/dashboard',
-    pathMatch: 'full'
-  },
-  { path: '**', component: PageNotFoundComponent }
-];
 
 @NgModule({
   declarations: [
@@ -39,8 +24,8 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     FormsModule,
+    AppRoutingModule,
     HttpModule,
-    RouterModule.forRoot(appRoutes),
     MaterialModule.forRoot(),
     FlexLayoutModule.forRoot()
   ],
