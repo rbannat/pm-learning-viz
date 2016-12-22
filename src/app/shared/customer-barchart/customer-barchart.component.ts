@@ -1,41 +1,45 @@
 import {Component, OnInit, ViewEncapsulation, Input} from '@angular/core';
+import {UpdateCaseService} from 'app/shared/update-case.service';
 import * as d3 from 'd3';
 
 @Component({
   selector: 'app-customer-barchart',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './customer-barchart.component.html',
-  styleUrls: ['./customer-barchart.component.css']
+  styleUrls: ['./customer-barchart.component.css'],
+  providers: [UpdateCaseService]
 })
 export class CustomerBarchartComponent implements OnInit {
 
   @Input() topX: number;
+  data: any;
+  loading: Boolean = true;
 
-  loading = true;
-
-  constructor() {
+  constructor(private updateCaseService: UpdateCaseService) {
   }
 
   ngOnInit() {
     let self = this;
 
-    d3.json("assets/customer-list.json", function (error, data:any) {
-      if (error) {
-        self.loading = false;
-        return console.warn(error);
-      } else {
-        self.loading = false;
-        data.sort(function (a, b) {
-          return b["updateCaseCount"] - a["updateCaseCount"];
-        });
-        if(self.topX){data = data.slice(0,self.topX);}
-        self.initChart(data);
+    self.getCustomers();
+    self.data.then((response) => {
+      let data = response;
+
+      data.sort(function (a, b) {
+        return b["updateCaseCount"] - a["updateCaseCount"];
+      });
+
+      if (self.topX) {
+        data = data.slice(0, self.topX);
       }
+
+      self.loading = false;
+
+      self.initChart(data);
     });
   }
 
   initChart(data) {
-    console.log(data);
     let width = document.querySelectorAll('.d3-customer-barchart')[0].clientWidth,
       barHeight = 20,
       leftMargin = 100;
@@ -93,6 +97,10 @@ export class CustomerBarchartComponent implements OnInit {
         return (d['updateCaseCount'] < 5) ? '' : d['updateCaseCount'];
       });
 
+  }
+
+  getCustomers(): void {
+    this.data = this.updateCaseService.getCustomers();
   }
 
 }
