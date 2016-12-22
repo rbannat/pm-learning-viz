@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation, Input} from '@angular/core';
+import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {UpdateCaseService} from 'app/shared/update-case.service';
 import * as d3 from 'd3';
 
@@ -9,94 +9,141 @@ import * as d3 from 'd3';
   styleUrls: ['./customer-barchart.component.css'],
   providers: [UpdateCaseService]
 })
-export class CustomerBarchartComponent implements OnInit {
+export class CustomerBarchartComponent implements OnInit, OnChanges {
 
+  @ViewChild('chart') private chartContainer: ElementRef;
   @Input() topX: number;
-  data: Promise<any>;
+  private margin: any = {top: 10, bottom: 10, left: 10, right: 10};
+  private chart: any;
+  private width: number;
+  private height: number;
+  private xScale: any;
+  private barHeight = 20;
+  private leftMargin = 100;
+  dataPromise: Promise<any>;
+  data: any;
   loading: Boolean = true;
 
   constructor(private updateCaseService: UpdateCaseService) {
   }
 
   ngOnInit() {
-    let self = this;
+    this.getCustomers();
 
-    self.getCustomers();
+    this.dataPromise.then((response) => {
+      this.data = response;
 
-    self.data.then((response) => {
-      let data = response;
-
-      data.sort(function (a, b) {
+      this.data.sort(function (a, b) {
         return b["icuElements"].length - a["icuElements"].length;
       });
 
-      if (self.topX) {
-        data = data.slice(0, self.topX);
+      if (this.topX) {
+        this.data = this.data.slice(0, this.topX);
       }
 
-      self.loading = false;
+      this.loading = false;
 
-      self.initChart(data);
+      this.initChart();
+      this.updateChart();
     });
   }
 
-  initChart(data) {
-    let width = document.querySelectorAll('.d3-customer-barchart')[0].clientWidth,
-      barHeight = 20,
-      leftMargin = 100;
+  ngOnChanges() {
+    if (this.chart) {
+      this.updateChart();
+    }
+  }
 
-    let chart = d3.select('.d3-customer-barchart');
-    chart.html('<p class="lead">Number of Updatecases</p>');
+  onResize() {
+    this.resizeChart();
+  }
 
-    let svg = chart.append('svg')
-      .attr('width', width)
-      .attr('height', barHeight * data.length);
+  initChart() {
+    let element = this.chartContainer.nativeElement;
+    this.width = element.offsetWidth - this.margin.left - this.margin.right;
+    this.height = this.barHeight * this.data.length + this.margin.top + this.margin.bottom;
 
-    //xscale
-    let xScale = d3.scaleLinear()
-      .domain([0, d3.max(data, function (d) {
-        return d['icuElements'].length;
-      })])
-      .range([0, width - leftMargin]);
+    d3.select(element).html('<p class="lead">Number of Updatecases</p>');
 
-    let bar = svg.selectAll('g')
-      .data(data)
-      .enter().append('g')
-      .attr('transform', function (d, i) {
-        return 'translate(' + leftMargin + ',' + i * barHeight + ')';
-      });
+    let svg = d3.select(element).append('svg')
+      .attr('width', element.offsetWidth)
+      .attr('height', this.height);
+
+    // chart area
+    this.chart = svg.append('g')
+      .attr('class', 'bars')
+      .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
+
+    // xDomain
+    let xDomain = [0, d3.max(this.data, d => d['icuElements'].length)];
+    // xScale
+    this.xScale = d3.scaleLinear()
+      .domain(xDomain)
+      .range([0, this.width - this.leftMargin]);
+  }
+
+  updateChart() {
+    this.xScale.domain([0, d3.max(this.data, d => d['icuElements'].length)]);
+
+    let update = this.chart.selectAll('.bar')
+      .data(this.data);
+
+    // remove exiting bars
+    update.exit().remove();
+
+    // update existing bars
+    // ...
+
+    // add new bars
+    let bar = update
+      .enter()
+      .append('g')
+      .attr('class', 'bar')
+      .attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + i * this.barHeight + ')');
+
     bar.append("text")
       .attr('class', 'label')
       .attr("x", function (d) {
         return -10;
       })
-      .attr("y", barHeight / 2)
+      .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .text(function (d) {
         return d['customer'];
       });
 
     bar.append("rect")
-      .attr("width", function (d) {
-        return xScale(d['icuElements'].length);
-      })
-      .attr("height", barHeight - 1);
+      .attr("width", d => this.xScale(d['icuElements'].length))
+      .attr("height", this.barHeight - 1);
 
     bar.append("text")
-      .attr("x", function (d) {
-        return xScale(d['icuElements'].length) - 3;
-      })
-      .attr("y", barHeight / 2)
+      .attr("x", d => this.xScale(d['icuElements'].length) - 3)
+      .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
       .text(function (d) {
         return (d['icuElements'].length < 5) ? '' : d['icuElements'].length;
       });
+  }
 
+  resizeChart() {
+    let element = this.chartContainer.nativeElement;
+    this.width = element.offsetWidth - this.margin.left - this.margin.right;
+    d3.select(element).select('svg').attr('width', element.offsetWidth);
+    // xDomain
+    let xDomain = [0, d3.max(this.data, d => d['icuElements'].length)];
+    // xScale
+    this.xScale = d3.scaleLinear()
+      .domain(xDomain)
+      .range([0, this.width - this.leftMargin]);
+
+    let update = this.chart.selectAll('.bar');
+    update.select('rect').attr("width", d => this.xScale(d['icuElements'].length));
+    update.select('.amount').attr("x", d => this.xScale(d['icuElements'].length) - 3);
   }
 
   getCustomers(): void {
-    this.data = this.updateCaseService.getCustomers();
+    this.dataPromise = this.updateCaseService.getCustomers();
   }
 
 }

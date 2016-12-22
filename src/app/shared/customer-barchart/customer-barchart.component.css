@@ -1,5 +1,7 @@
 .d3-customer-barchart {
   overflow: hidden;
+  max-height: 450px;
+  overflow-y: auto;
 }
 
 .d3-customer-barchart .axis path,
