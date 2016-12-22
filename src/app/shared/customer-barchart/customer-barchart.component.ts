@@ -27,7 +27,7 @@ export class CustomerBarchartComponent implements OnInit {
       let data = response;
 
       data.sort(function (a, b) {
-        return b["updateCaseCount"] - a["updateCaseCount"];
+        return b["icuElements"].length - a["icuElements"].length;
       });
 
       if (self.topX) {
@@ -55,14 +55,9 @@ export class CustomerBarchartComponent implements OnInit {
     //xscale
     let xScale = d3.scaleLinear()
       .domain([0, d3.max(data, function (d) {
-        return d['updateCaseCount'];
+        return d['icuElements'].length;
       })])
       .range([0, width - leftMargin]);
-
-    // radius scale
-    // var rScale = d3.scale.sqrt()
-    // .domain([52070, 1380000000])
-    // .range([10,40]);
 
     let bar = svg.selectAll('g')
       .data(data)
@@ -83,19 +78,19 @@ export class CustomerBarchartComponent implements OnInit {
 
     bar.append("rect")
       .attr("width", function (d) {
-        return xScale(d['updateCaseCount']);
+        return xScale(d['icuElements'].length);
       })
       .attr("height", barHeight - 1);
 
     bar.append("text")
       .attr("x", function (d) {
-        return xScale(d['updateCaseCount']) - 3;
+        return xScale(d['icuElements'].length) - 3;
       })
       .attr("y", barHeight / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
       .text(function (d) {
-        return (d['updateCaseCount'] < 5) ? '' : d['updateCaseCount'];
+        return (d['icuElements'].length < 5) ? '' : d['icuElements'].length;
       });
 
   }

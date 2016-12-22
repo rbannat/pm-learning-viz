@@ -6,7 +6,9 @@ import 'rxjs/add/operator/toPromise';
 @Injectable()
 export class UpdateCaseService {
 
-  private customersUrl = 'assets/customer-list.json';
+  private customersCountUrl = 'assets/customercount-list.json'; // updatecase/list/count
+  private customersUrl = 'assets/customer-list.json'; // updatecase/list
+  // private updatecasesByCustomerIdUrl = /updatecase/customer/list?id=2179
 
   constructor(private http: Http) { }
 

@@ -8,8 +8,15 @@
       <button md-button routerLink="/customers" color="primary">All Customers</button>
     </md-card-actions>
   </md-card>
-  <md-card>
-    <p>My regular content. This will be moved into the proper DOM at runtime.</p>
+
+  <md-card fx-flex="50%">
+    <md-card-title>
+      Top Customers
+    </md-card-title>
+    <app-customer-barchart [topX] = 10></app-customer-barchart>
+    <md-card-actions>
+      <button md-button routerLink="/customers" color="primary">All Customers</button>
+    </md-card-actions>
   </md-card>
 </div>
 <div class="flex-container" fx-layout="row">
