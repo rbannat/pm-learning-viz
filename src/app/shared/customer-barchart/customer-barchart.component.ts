@@ -12,7 +12,7 @@ import * as d3 from 'd3';
 export class CustomerBarchartComponent implements OnInit {
 
   @Input() topX: number;
-  data: any;
+  data: Promise<any>;
   loading: Boolean = true;
 
   constructor(private updateCaseService: UpdateCaseService) {
@@ -22,6 +22,7 @@ export class CustomerBarchartComponent implements OnInit {
     let self = this;
 
     self.getCustomers();
+
     self.data.then((response) => {
       let data = response;
 
