@@ -12,7 +12,6 @@ import * as d3 from 'd3';
 export class ForcedGraphComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
-  @Input() topX: number;
   private margin: any = {top: 10, bottom: 10, left: 10, right: 10};
   private chart: any;
   private width: number;
@@ -37,10 +36,6 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         return b["icuElements"].length - a["icuElements"].length;
       });
 
-      if (this.topX) {
-        this.data = this.data.slice(0, this.topX);
-      }
-
       this.loading = false;
 
       this.initChart();
@@ -62,8 +57,6 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     let element = this.chartContainer.nativeElement;
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     this.height = this.barHeight * this.data.length + this.margin.top + this.margin.bottom;
-
-    d3.select(element).html('<p class="lead">Number of Updatecases</p>');
 
     let svg = d3.select(element).append('svg')
       .attr('width', element.offsetWidth)
