@@ -11,6 +11,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { CustomerBarchartComponent } from './shared/customer-barchart/customer-barchart.component';
 import { CustomersComponent } from './customers/customers.component';
+import { IndexCasesComponent } from './index-cases/index-cases.component';
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import { CustomersComponent } from './customers/customers.component';
     DashboardComponent,
     PageNotFoundComponent,
     CustomerBarchartComponent,
-    CustomersComponent
+    CustomersComponent,
+    IndexCasesComponent
   ],
   imports: [
     BrowserModule,
