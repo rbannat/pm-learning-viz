@@ -74,7 +74,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .force("collide", d3.forceCollide(function (d) {
         return d['r'];
       }))
-      // .force("charge", d3.forceManyBody())
+      .force("charge", d3.forceManyBody().strength(-270))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2));
 
     this.color = d3.scaleOrdinal(d3.schemeCategory20);
@@ -191,14 +191,24 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       nodes: [],
       links: []
     };
-    let updateCases = [];
+
+    //create flat array of nested updateCases
+    let flatData = [];
+    for (let customer of response) {
+      for (let icu of customer.icuElements) {
+        let newUpdateCase = icu;
+        newUpdateCase.id = customer.id + '-' + icu.id;
+        newUpdateCase.customerId = customer.id;
+        flatData.push(newUpdateCase);
+      }
+    }
 
     //create flat array of all updateCases by merging updates
+    let updateCases = [];
     for (let customer of response) {
       let i = 0;
 
       while (i < customer.icuElements.length) {
-
         let current = customer.icuElements[i];
         let next = customer.icuElements[i + 1];
 
@@ -241,26 +251,25 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         }
       }
     }
-    console.log(updateCases);
 
     // count indexCases
     let indexCaseCounts = _.countBy(updateCases, 'indexCaseId');
 
-    // create nodes of unique index cases
-    let nodes = _.uniqBy(updateCases, 'indexCaseId').map(item => (
-        {
+    // store unique index cases
+    let nodes = _.uniqBy(flatData, 'indexCaseId').map(item => {
+        return {
           indexCaseId: item.indexCaseId,
-          r: indexCaseCounts[item.indexCaseId] / 3,
+          r: (indexCaseCounts[item.indexCaseId]) ? indexCaseCounts[item.indexCaseId] / 3 + 5 : 5,
           group: 1
         }
-      )
+      }
     );
     graphData.nodes = nodes;
-    console.log(nodes);
 
     // create links of update cases
     let updates = _.filter(updateCases, uc => uc.updateType === 'UPDATE');
 
+    // create links
     let links = [];
     _.each(updates, item => {
 
@@ -279,8 +288,6 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         value: 1
       }
     });
-
-    console.log(links);
     graphData.links = links;
 
     return graphData;
