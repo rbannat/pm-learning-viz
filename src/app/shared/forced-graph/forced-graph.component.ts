@@ -71,7 +71,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .force("link", d3.forceLink().id(function (d) {
         return d['indexCaseId'];
       }))
-      .force("collide", d3.forceCollide(function(d){
+      .force("collide", d3.forceCollide(function (d) {
         return d['r'];
       }))
       // .force("charge", d3.forceManyBody())
@@ -83,10 +83,19 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .attr('width', element.offsetWidth)
       .attr('height', this.height);
 
+    // add zoom
+    svg.call(d3.zoom()
+      .scaleExtent([1 / 2, 4])
+      .on("zoom", this.zoomed.bind(this)));
+
     // chart area
     this.chart = svg.append('g')
       .attr('class', 'graph')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
+  }
+
+  zoomed() {
+    this.chart.attr("transform", d3.event.transform);
   }
 
   dragstarted(d) {
@@ -202,20 +211,14 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         {
           'indexCaseId': item.indexCaseId,
           'r': indexCaseCounts[item.indexCaseId] / 10,
-          // 'r': 10,
           'group': 1
         }
       )
     );
 
     graphData.nodes = nodes;
-    graphData.links = [
-      {source:0, target:367, value:50},
-      {source:0, target:261, value:50},
-      {source:0, target:355, value:50},
-      {source:0, target:99, value:50},
-      {source:367, target:264, value:20}
-      ];
+    graphData.links = [];
+
     return graphData;
   }
 
