@@ -193,13 +193,52 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     };
     let updateCases = [];
 
-    //create flat array of all updateCases
+    //create flat array of all updateCases by merging updates
     for (let customer of response) {
-      for (let updateCase of customer.icuElements) {
-        let newUpdateCase = updateCase;
-        newUpdateCase.id = customer.id + '-' + updateCase.id;
-        newUpdateCase.customerId = customer.id;
-        updateCases.push(updateCase);
+      let i = 0;
+
+      while (i < customer.icuElements.length) {
+
+        let current = customer.icuElements[i];
+        let next = customer.icuElements[i + 1];
+
+        if (next !== undefined) {
+          // store update
+          if (current.indexCaseId !== next.indexCaseId && current.surface === next.surface) {
+            let newUpdateCase = current;
+            newUpdateCase.id = customer.id + '-' + current.id;
+            newUpdateCase.customerId = customer.id;
+            newUpdateCase.source = next.indexCaseId;
+            newUpdateCase.updateType = 'UPDATE';
+            updateCases.push(newUpdateCase);
+
+            if (next.updateType === 'DELETE') {
+              // skip pseudo delete
+              i += 2;
+            } else {
+              i++
+            }
+
+          } else {
+            let newUpdateCase = current;
+            newUpdateCase.id = customer.id + '-' + current.id;
+            newUpdateCase.customerId = customer.id;
+            updateCases.push(newUpdateCase);
+
+            i++
+          }
+
+
+        } else {
+
+          let newUpdateCase = current;
+          newUpdateCase.id = customer.id + '-' + current.id;
+          newUpdateCase.customerId = customer.id;
+          updateCases.push(newUpdateCase);
+
+          i++
+
+        }
       }
     }
 
@@ -210,7 +249,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     let nodes = _.uniqBy(updateCases, 'indexCaseId').map(item => (
         {
           'indexCaseId': item.indexCaseId,
-          'r': indexCaseCounts[item.indexCaseId] / 10,
+          'r': indexCaseCounts[item.indexCaseId] / 3,
           'group': 1
         }
       )
