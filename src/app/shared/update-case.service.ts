@@ -6,9 +6,8 @@ import 'rxjs/add/operator/toPromise';
 @Injectable()
 export class UpdateCaseService {
 
-  private customersCountUrl = 'assets/customercount-list.json'; // updatecase/list/count
   private customersUrl = 'assets/customer-list.json'; // updatecase/list
-  // private updatecasesByCustomerIdUrl = /updatecase/customer/list?id=2179
+  private customerByIdUrl = '/updatecase/customer/list?id=';
 
   constructor(private http: Http) { }
 
@@ -19,12 +18,12 @@ export class UpdateCaseService {
       .catch(this.handleError);
   }
 
-  getGraphData(): Promise<any> {
-    return this.http.get(this.customersUrl)
-      .toPromise()
-      .then(response => response.json() as any)
-      .catch(this.handleError);
-  }
+  // getCustomerById(id: number): Promise<any> {
+  //   return this.http.get(this.customerByIdUrl+id)
+  //     .toPromise()
+  //     .then(response => response.json() as any)
+  //     .catch(this.handleError);
+  // }
 
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error); // for demo purposes only

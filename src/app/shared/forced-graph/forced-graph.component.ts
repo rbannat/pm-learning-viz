@@ -1,18 +1,19 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {UpdateCaseService} from 'app/shared/update-case.service';
 import * as d3 from 'd3';
+import * as _ from 'lodash';
 
-const graphData: any = {
-  "nodes": [
-    {"id": "Myriel", "group": 1, "r": 5},
-    {"id": "Napoleon", "group": 1, "r": 10},
-    {"id": "Mlle.Baptistine", "group": 1, "r": 20}
-  ],
-  "links": [
-    {"source": "Napoleon", "target": "Myriel", "value": 1},
-    {"source": "Mlle.Baptistine", "target": "Myriel", "value": 8}
-  ]
-};
+// const graphData: any = {
+//   "nodes": [
+//     {"indexCaseId": "Myriel", "group": 1, "r": 5},
+//     {"indexCaseId": "Napoleon", "group": 1, "r": 10},
+//     {"indexCaseId": "Mlle.Baptistine", "group": 1, "r": 20}
+//   ],
+//   "links": [
+//     {"source": "Napoleon", "target": "Myriel", "value": 1},
+//     {"source": "Mlle.Baptistine", "target": "Myriel", "value": 8}
+//   ]
+// };
 
 @Component({
   selector: 'app-forced-graph',
@@ -38,16 +39,11 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.getGraphData();
+    this.getCustomers();
 
     this.dataPromise.then((response) => {
-      // this.data = response;
-      // todo: transform to graph data
-      this.data = graphData;
 
-      // this.data.sort(function (a, b) {
-      //   return b["icuElements"].length - a["icuElements"].length;
-      // });
+      this.data = this.getGraphData(response);
 
       this.loading = false;
 
@@ -73,9 +69,12 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
     this.simulation = d3.forceSimulation()
       .force("link", d3.forceLink().id(function (d) {
-        return d['id'];
+        return d['indexCaseId'];
       }))
-      .force("charge", d3.forceManyBody())
+      .force("collide", d3.forceCollide(function(d){
+        return d['r'];
+      }))
+      // .force("charge", d3.forceManyBody())
       .force("center", d3.forceCenter(this.width / 2, this.height / 2));
 
     this.color = d3.scaleOrdinal(d3.schemeCategory20);
@@ -132,7 +131,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
     node.append("title")
       .text(function (d) {
-        return d.id;
+        return d.indexCaseId;
       });
 
     this.simulation
@@ -174,8 +173,50 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     this.simulation.force("center", d3.forceCenter(this.width / 2, this.height / 2));
   }
 
-  getGraphData(): void {
-    this.dataPromise = this.updateCaseService.getGraphData();
+  getCustomers(): void {
+    this.dataPromise = this.updateCaseService.getCustomers();
+  }
+
+  getGraphData(response: any): any {
+    let graphData = {
+      nodes: [],
+      links: []
+    };
+    let updateCases = [];
+
+    //create flat array of all updateCases
+    for (let customer of response) {
+      for (let updateCase of customer.icuElements) {
+        let newUpdateCase = updateCase;
+        newUpdateCase.id = customer.id + '-' + updateCase.id;
+        newUpdateCase.customerId = customer.id;
+        updateCases.push(updateCase);
+      }
+    }
+
+    // count indexCases
+    let indexCaseCounts = _.countBy(updateCases, 'indexCaseId');
+
+    // create nodes of unique index cases
+    let nodes = _.uniqBy(updateCases, 'indexCaseId').map(item => (
+        {
+          'indexCaseId': item.indexCaseId,
+          'r': indexCaseCounts[item.indexCaseId] / 10,
+          // 'r': 10,
+          'group': 1
+        }
+      )
+    );
+
+    graphData.nodes = nodes;
+    graphData.links = [
+      {source:0, target:367, value:50},
+      {source:0, target:261, value:50},
+      {source:0, target:355, value:50},
+      {source:0, target:99, value:50},
+      {source:367, target:264, value:20}
+      ];
+    return graphData;
   }
 
 }
