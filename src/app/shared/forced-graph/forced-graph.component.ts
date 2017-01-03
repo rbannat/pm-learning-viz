@@ -241,7 +241,6 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         }
       }
     }
-
     console.log(updateCases);
 
     // count indexCases
@@ -250,9 +249,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     // create nodes of unique index cases
     let nodes = _.uniqBy(updateCases, 'indexCaseId').map(item => (
         {
-          'indexCaseId': item.indexCaseId,
-          'r': indexCaseCounts[item.indexCaseId] / 3,
-          'group': 1
+          indexCaseId: item.indexCaseId,
+          r: indexCaseCounts[item.indexCaseId] / 3,
+          group: 1
         }
       )
     );
@@ -260,14 +259,27 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     console.log(nodes);
 
     // create links of update cases
-    let links = _.filter(updateCases, uc => uc.updateType === 'UPDATE').map(item => (
-        {
-          'source': item.source,
-          'target': item.indexCaseId,
-          'value': 1
-        }
-      )
-    );
+    let updates = _.filter(updateCases, uc => uc.updateType === 'UPDATE');
+
+    let links = [];
+    _.each(updates, item => {
+
+      if (!_.some(links, {
+          'indexCaseId': item.indexCaseId,
+          'source': item.source
+        }) || !_.some(links, {'indexCaseId': item.source, 'source': item.indexCaseId})) {
+        links.push(item);
+      }
+    });
+
+    links = _.map(links, link => {
+      return {
+        source: link.source,
+        target: link.indexCaseId,
+        value: 1
+      }
+    });
+
     console.log(links);
     graphData.links = links;
 
