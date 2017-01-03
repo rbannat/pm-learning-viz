@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { CustomerBarchartComponent } from './shared/customer-barchart/customer-barchart.component';
+import { ForcedGraphComponent } from './shared/forced-graph/forced-graph.component';
 import { CustomersComponent } from './customers/customers.component';
 import { IndexCasesComponent } from './index-cases/index-cases.component';
 
@@ -20,6 +21,7 @@ import { IndexCasesComponent } from './index-cases/index-cases.component';
     DashboardComponent,
     PageNotFoundComponent,
     CustomerBarchartComponent,
+    ForcedGraphComponent,
     CustomersComponent,
     IndexCasesComponent
   ],

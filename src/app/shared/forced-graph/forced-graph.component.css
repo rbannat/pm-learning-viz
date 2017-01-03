@@ -1,0 +1,28 @@
+.d3-forced-graph {
+  overflow: hidden;
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+.d3-forced-graph .axis path,
+.d3-forced-graph .axis line {
+  stroke: #999;
+}
+
+.d3-forced-graph .axis text {
+  fill: #999;
+}
+
+.d3-forced-graph rect {
+  fill: steelblue;
+}
+
+.d3-forced-graph text {
+  fill: #333;
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
+.d3-forced-graph .amount {
+  fill: white;
+}
