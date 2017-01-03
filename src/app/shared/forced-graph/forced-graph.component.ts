@@ -218,8 +218,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
             } else {
               i++
             }
-
+            // store new or deleted
           } else {
+
             let newUpdateCase = current;
             newUpdateCase.id = customer.id + '-' + current.id;
             newUpdateCase.customerId = customer.id;
@@ -228,7 +229,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
             i++
           }
 
-
+          // store last element
         } else {
 
           let newUpdateCase = current;
@@ -237,10 +238,11 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
           updateCases.push(newUpdateCase);
 
           i++
-
         }
       }
     }
+
+    console.log(updateCases);
 
     // count indexCases
     let indexCaseCounts = _.countBy(updateCases, 'indexCaseId');
@@ -254,9 +256,20 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         }
       )
     );
-
     graphData.nodes = nodes;
-    graphData.links = [];
+    console.log(nodes);
+
+    // create links of update cases
+    let links = _.filter(updateCases, uc => uc.updateType === 'UPDATE').map(item => (
+        {
+          'source': item.source,
+          'target': item.indexCaseId,
+          'value': 1
+        }
+      )
+    );
+    console.log(links);
+    graphData.links = links;
 
     return graphData;
   }
