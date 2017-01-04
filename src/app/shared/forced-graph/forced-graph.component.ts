@@ -160,6 +160,13 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         return d.indexCaseId;
       });
 
+    let labels = this.chart.append("g")
+      .attr("class", "labels")
+      .selectAll("text")
+      .data(this.data.nodes)
+      .enter().append("text")
+      .text(function(d) { return d.indexCaseId; });
+
     this.simulation
       .nodes(this.data.nodes)
       .on("tick", ticked);
@@ -176,6 +183,14 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         })
         .attr("cy", function (d) {
           return d.y;
+        });
+
+      labels
+        .attr("x", function (d) {
+          return d.x;
+        })
+        .attr("y", function (d) {
+          return d.y + 3;
         });
     }
 
