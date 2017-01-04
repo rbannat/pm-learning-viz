@@ -3,7 +3,18 @@
   stroke-opacity: 0.6;
 }
 
+.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
 .nodes circle {
   stroke: #fff;
   stroke-width: 1.5px;
+  fill: rgba(31,119,180,0.95);
+}
+
+#default {
+  fill: #666;
 }

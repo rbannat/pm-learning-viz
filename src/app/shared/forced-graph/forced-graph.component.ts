@@ -117,11 +117,28 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
   updateChart() {
 
-    let link = this.chart.append("g")
+    // Per-type markers, as they don't inherit styles.
+    this.chart.append("defs").selectAll("marker")
+      .data(["default"])
+      .enter().append("marker")
+      .attr("id", function(d) { return d; })
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 10)
+      .attr("refY", 0)
+      .attr("markerWidth", 3)
+      .attr("markerHeight", 4)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M0,-5L10,0L0,5")
+      .attr("class","arrowHead");
+
+    let path = this.chart.append("g")
       .attr("class", "links")
-      .selectAll("line")
+      .selectAll("path")
       .data(this.data.links)
-      .enter().append("line")
+      .enter().append("path")
+      .attr("class", "link")
+      .attr("marker-end", "url(#default)")
       .attr("stroke-width", function (d) {
         return Math.sqrt(d.value);
       });
@@ -151,19 +168,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .links(this.data.links);
 
     function ticked() {
-      link
-        .attr("x1", function (d) {
-          return d.source.x;
-        })
-        .attr("y1", function (d) {
-          return d.source.y;
-        })
-        .attr("x2", function (d) {
-          return d.target.x;
-        })
-        .attr("y2", function (d) {
-          return d.target.y;
-        });
+      path.attr("d", linkArc);
 
       node
         .attr("cx", function (d) {
@@ -172,6 +177,27 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         .attr("cy", function (d) {
           return d.y;
         });
+    }
+
+    function linkArc(d) {
+
+      // Total difference in x and y from source to target
+      let dx = d.target.x - d.source.x,
+        dy = d.target.y - d.source.y,
+        dr = Math.sqrt(dx * dx + dy * dy);
+
+      // Length of path from center of source node to center of target node
+      let pathLength = Math.sqrt((dx * dx) + (dy * dy));
+
+      // x and y distances from center to outside edge of target node
+      let offsetX = (dx * d.target.r) / pathLength;
+      let offsetY = (dy * d.target.r) / pathLength;
+
+      // x and y distances from center to outside edge of source node
+      let offsetXS = (dx * d.source.r) / pathLength;
+      let offsetYS = (dy * d.source.r) / pathLength;
+
+      return "M" + (d.source.x + offsetXS) + "," + (d.source.y + offsetYS) + "A" + dr + "," + dr + " 0 0,1 " + (d.target.x - offsetX) + "," + (d.target.y - offsetY);
     }
   }
 
