@@ -285,7 +285,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     let nodes = _.uniqBy(flatData, 'indexCaseId').map(item => {
         return {
           indexCaseId: item.indexCaseId,
-          r: (indexCaseCounts[item.indexCaseId]) ? indexCaseCounts[item.indexCaseId] / 3 + 5 : 5,
+          r: (indexCaseCounts[item.indexCaseId]) ? Math.sqrt(indexCaseCounts[item.indexCaseId]/Math.PI)*5 + 2 : 2,
           group: 1
         }
       }
@@ -311,7 +311,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       return {
         source: link.source,
         target: link.indexCaseId,
-        value: 1
+        value: _.filter(updates, item => item.indexCaseId === link.indexCaseId && item.source === link.source).length
       }
     });
     graphData.links = links;
