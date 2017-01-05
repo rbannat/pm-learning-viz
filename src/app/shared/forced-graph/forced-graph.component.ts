@@ -233,65 +233,11 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       links: []
     };
 
-    //create flat array of nested updateCases
-    let flatData = [];
-    for (let customer of response) {
-      for (let icu of customer.icuElements) {
-        let newUpdateCase = icu;
-        newUpdateCase.id = customer.id + '-' + icu.id;
-        newUpdateCase.customerId = customer.id;
-        flatData.push(newUpdateCase);
-      }
-    }
+    //get flat array of all update cases
+    let flatData = this.updateCaseService.getUpdateCases(response);
 
-    //create flat array of all updateCases by merging updates
-    let updateCases = [];
-    for (let customer of response) {
-      let i = 0;
-
-      while (i < customer.icuElements.length) {
-        let current = customer.icuElements[i];
-        let next = customer.icuElements[i + 1];
-
-        if (next !== undefined) {
-          // store update
-          if (current.indexCaseId !== next.indexCaseId && current.surface === next.surface) {
-            let newUpdateCase = current;
-            newUpdateCase.id = customer.id + '-' + current.id;
-            newUpdateCase.customerId = customer.id;
-            newUpdateCase.source = next.indexCaseId;
-            newUpdateCase.updateType = 'UPDATE';
-            updateCases.push(newUpdateCase);
-
-            if (next.updateType === 'DELETE') {
-              // skip pseudo delete
-              i += 2;
-            } else {
-              i++
-            }
-            // store new or deleted
-          } else {
-
-            let newUpdateCase = current;
-            newUpdateCase.id = customer.id + '-' + current.id;
-            newUpdateCase.customerId = customer.id;
-            updateCases.push(newUpdateCase);
-
-            i++
-          }
-
-          // store last element
-        } else {
-
-          let newUpdateCase = current;
-          newUpdateCase.id = customer.id + '-' + current.id;
-          newUpdateCase.customerId = customer.id;
-          updateCases.push(newUpdateCase);
-
-          i++
-        }
-      }
-    }
+    //get flat array of all real updateCases by skipping pseudo deletes and adding "update" type
+    let updateCases = this.updateCaseService.getRealUpdateCases(response);
 
     // count indexCases
     let indexCaseCounts = _.countBy(updateCases, 'indexCaseId');

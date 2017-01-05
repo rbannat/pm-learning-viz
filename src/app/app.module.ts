@@ -13,6 +13,7 @@ import { CustomerBarchartComponent } from './shared/customer-barchart/customer-b
 import { ForcedGraphComponent } from './shared/forced-graph/forced-graph.component';
 import { CustomersComponent } from './customers/customers.component';
 import { IndexCasesComponent } from './index-cases/index-cases.component';
+import { IndexCasesBarchartComponent } from './shared/index-cases-barchart/index-cases-barchart.component';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { IndexCasesComponent } from './index-cases/index-cases.component';
     CustomerBarchartComponent,
     ForcedGraphComponent,
     CustomersComponent,
-    IndexCasesComponent
+    IndexCasesComponent,
+    IndexCasesBarchartComponent
   ],
   imports: [
     BrowserModule,

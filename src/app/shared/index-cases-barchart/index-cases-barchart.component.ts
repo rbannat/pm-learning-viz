@@ -1,15 +1,15 @@
-import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import { Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input } from '@angular/core';
 import {UpdateCaseService} from 'app/shared/update-case.service';
 import * as d3 from 'd3';
 
 @Component({
-  selector: 'app-customer-barchart',
+  selector: 'app-index-cases-barchart',
   encapsulation: ViewEncapsulation.None,
-  templateUrl: './customer-barchart.component.html',
-  styleUrls: ['./customer-barchart.component.css'],
+  templateUrl: './index-cases-barchart.component.html',
+  styleUrls: ['./index-cases-barchart.component.css'],
   providers: [UpdateCaseService]
 })
-export class CustomerBarchartComponent implements OnInit, OnChanges {
+export class IndexCasesBarchartComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() topX: number;
@@ -24,17 +24,21 @@ export class CustomerBarchartComponent implements OnInit, OnChanges {
   data: any;
   loading: Boolean = true;
 
-  constructor(private updateCaseService: UpdateCaseService) {
-  }
+  constructor(private updateCaseService: UpdateCaseService) { }
 
   ngOnInit() {
     this.getCustomers();
 
     this.dataPromise.then((response) => {
-      this.data = response;
+      let updateCases = this.updateCaseService.getRealUpdateCases(response);
+      this.data = d3.nest()
+        .key(function(d) { return d['indexCaseId']; })
+        .entries(updateCases);
+
+      console.log(this.data);
 
       this.data.sort(function (a, b) {
-        return b["icuElements"].length - a["icuElements"].length;
+        return b["values"].length - a["values"].length;
       });
 
       if (this.topX) {
@@ -75,7 +79,7 @@ export class CustomerBarchartComponent implements OnInit, OnChanges {
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
     // xDomain
-    let xDomain = [0, d3.max(this.data, d => d['icuElements'].length)];
+    let xDomain = [0, d3.max(this.data, d => d['values'].length)];
     // xScale
     this.xScale = d3.scaleLinear()
       .domain(xDomain)
@@ -83,7 +87,7 @@ export class CustomerBarchartComponent implements OnInit, OnChanges {
   }
 
   updateChart() {
-    this.xScale.domain([0, d3.max(this.data, d => d['icuElements'].length)]);
+    this.xScale.domain([0, d3.max(this.data, d => d['values'].length)]);
 
     let update = this.chart.selectAll('.bar')
       .data(this.data);
@@ -109,20 +113,20 @@ export class CustomerBarchartComponent implements OnInit, OnChanges {
       .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .text(function (d) {
-        return d['customer'];
+        return d['key'];
       });
 
     bar.append("rect")
-      .attr("width", d => this.xScale(d['icuElements'].length))
+      .attr("width", d => this.xScale(d['values'].length))
       .attr("height", this.barHeight - 1);
 
     bar.append("text")
-      .attr("x", d => this.xScale(d['icuElements'].length) - 3)
+      .attr("x", d => this.xScale(d['values'].length) - 3)
       .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
       .text(function (d) {
-        return (d['icuElements'].length < 5) ? '' : d['icuElements'].length;
+        return (d['values'].length < 5) ? '' : d['values'].length;
       });
   }
 
@@ -131,15 +135,15 @@ export class CustomerBarchartComponent implements OnInit, OnChanges {
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     d3.select(element).select('svg').attr('width', element.offsetWidth);
     // xDomain
-    let xDomain = [0, d3.max(this.data, d => d['icuElements'].length)];
+    let xDomain = [0, d3.max(this.data, d => d['values'].length)];
     // xScale
     this.xScale = d3.scaleLinear()
       .domain(xDomain)
       .range([0, this.width - this.leftMargin]);
 
     let update = this.chart.selectAll('.bar');
-    update.select('rect').attr("width", d => this.xScale(d['icuElements'].length));
-    update.select('.amount').attr("x", d => this.xScale(d['icuElements'].length) - 3);
+    update.select('rect').attr("width", d => this.xScale(d['values'].length));
+    update.select('.amount').attr("x", d => this.xScale(d['values'].length) - 3);
   }
 
   getCustomers(): void {
