@@ -35,8 +35,6 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
         .key(function(d) { return d['indexCaseId']; })
         .entries(updateCases);
 
-      console.log(this.data);
-
       this.data.sort(function (a, b) {
         return b["values"].length - a["values"].length;
       });
