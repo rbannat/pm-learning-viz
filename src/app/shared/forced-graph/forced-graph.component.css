@@ -11,7 +11,7 @@
 .nodes circle {
   stroke: #fff;
   stroke-width: 1px;
-  fill: rgba(31,119,180,0.95);
+  fill: rgb(33, 150, 243);
 }
 
 .labels text {

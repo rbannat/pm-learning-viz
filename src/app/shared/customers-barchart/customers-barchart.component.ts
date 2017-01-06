@@ -4,13 +4,13 @@ import * as d3 from 'd3';
 import * as _ from 'lodash';
 
 @Component({
-  selector: 'app-customer-barchart',
+  selector: 'app-customers-barchart',
   encapsulation: ViewEncapsulation.None,
-  templateUrl: './customer-barchart.component.html',
-  styleUrls: ['./customer-barchart.component.css'],
+  templateUrl: './customers-barchart.component.html',
+  styleUrls: ['./customers-barchart.component.css'],
   providers: [UpdateCaseService]
 })
-export class CustomerBarchartComponent implements OnInit, OnChanges {
+export class CustomersBarchartComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() topX: number;

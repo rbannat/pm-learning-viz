@@ -14,7 +14,7 @@
 }
 
 .d3-barchart rect {
-  fill: steelblue;
+  fill: rgb(33, 150, 243);
 }
 
 .d3-barchart text {
