@@ -1,4 +1,5 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import {Router} from '@angular/router';
 import {UpdateCaseService} from 'app/shared/update-case.service';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
@@ -27,7 +28,8 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   updateCases: any;
   loading: Boolean = true;
 
-  constructor(private updateCaseService: UpdateCaseService) {
+  constructor(private updateCaseService: UpdateCaseService,
+              private router: Router) {
   }
 
   ngOnInit() {
@@ -39,6 +41,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
       this.updateCases = this.updateCaseService.getRealUpdateCases(response);
       this.data = _.map(this.customers, customer => {
         return {
+          id: customer['id'],
           customer: customer['customer'],
           updateCaseCount: _.filter(this.updateCases, function(o) { if (o['customerId' ] === customer['id']) return o }).length
         }
@@ -121,6 +124,9 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
       .attr("dy", ".35em")
       .text(function (d) {
         return d['customer'];
+      })
+      .on('click', d => {
+        this.gotoDetail(d.id)
       });
 
     bar.append("rect")
@@ -155,6 +161,10 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
 
   getCustomers(): void {
     this.dataPromise = this.updateCaseService.getCustomers();
+  }
+
+  gotoDetail(customerId:number): void {
+    this.router.navigate(['/customer', customerId]);
   }
 
 }

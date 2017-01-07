@@ -2,8 +2,11 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent }   from './dashboard/dashboard.component';
 import { CustomersComponent }   from './customers/customers.component';
+import { CustomerComponent }   from './customer/customer.component';
 import { IndexCasesComponent }   from './index-cases/index-cases.component';
 import { PageNotFoundComponent }   from './page-not-found/page-not-found.component';
+import { CustomerResolver }   from './shared/customer-resolver.service';
+import {UpdateCaseService} from "./shared/update-case.service";
 
 const appRoutes: Routes = [
   {
@@ -13,6 +16,13 @@ const appRoutes: Routes = [
   {
     path: 'customers',
     component: CustomersComponent
+  },
+  {
+    path: 'customer/:id',
+    component: CustomerComponent,
+    resolve: {
+      customer: CustomerResolver
+    }
   },
   {
     path: 'index-cases',
@@ -27,6 +37,7 @@ const appRoutes: Routes = [
 
 @NgModule({
   imports: [ RouterModule.forRoot(appRoutes) ],
-  exports: [ RouterModule ]
+  exports: [ RouterModule ],
+  providers: [CustomerResolver, UpdateCaseService]
 })
 export class AppRoutingModule { }

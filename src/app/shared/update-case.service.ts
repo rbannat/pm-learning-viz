@@ -20,6 +20,11 @@ export class UpdateCaseService {
       .catch(this.handleError);
   }
 
+  getCustomer(id: number): Promise<any> {
+    return this.getCustomers()
+      .then(customers => customers.find(customer => customer.id === id));
+  }
+
   /**
    * Creates flat array of all update cases from customer list data
    * @param customerData
