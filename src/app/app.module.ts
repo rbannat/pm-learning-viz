@@ -14,6 +14,7 @@ import { ForcedGraphComponent } from './shared/forced-graph/forced-graph.compone
 import { CustomersComponent } from './customers/customers.component';
 import { IndexCasesComponent } from './index-cases/index-cases.component';
 import { IndexCasesBarchartComponent } from './shared/index-cases-barchart/index-cases-barchart.component';
+import { CustomersIcTableComponent } from './shared/customers-ic-table/customers-ic-table.component';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { IndexCasesBarchartComponent } from './shared/index-cases-barchart/index
     ForcedGraphComponent,
     CustomersComponent,
     IndexCasesComponent,
-    IndexCasesBarchartComponent
+    IndexCasesBarchartComponent,
+    CustomersIcTableComponent
   ],
   imports: [
     BrowserModule,

@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Headers, Http} from '@angular/http';
 
 import 'rxjs/add/operator/toPromise';
+import * as _ from 'lodash';
 
 @Injectable()
 export class UpdateCaseService {
@@ -24,7 +25,7 @@ export class UpdateCaseService {
    * @param customerData
    * @returns {Array}
    */
-  getUpdateCases(customerData:any[]): any[] {
+  getUpdateCases(customerData: any[]): any[] {
 
     let flatData = [];
     for (let customer of customerData) {
@@ -39,11 +40,29 @@ export class UpdateCaseService {
   }
 
   /**
+   * Returns all existing categories.
+   * @param categories
+   * @returns {Array}
+   */
+  getCategories(customerData: any[]): any[] {
+
+    let categories = [];
+    for (let customer of customerData) {
+      for (let icu of customer.icuElements) {
+        if (!_.find(categories, ['id', icu.indexCaseId])) {
+          categories.push({id: icu.indexCaseId});
+        }
+      }
+    }
+    return categories;
+  }
+
+  /**
    * Creates flat array of all real update cases from customer list data by skipping pseudo deletes and adding "UPDATE" type
    * @param customerData
    * @returns {Array}
    */
-  getRealUpdateCases(customerData:any[]): any[] {
+  getRealUpdateCases(customerData: any[]): any[] {
 
     let updateCases = [];
     for (let customer of customerData) {
