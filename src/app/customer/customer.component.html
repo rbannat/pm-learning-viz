@@ -1,11 +1,9 @@
 <div class="flex-container" fxLayout="row">
   <md-card fxFlex="50%">
     <md-card-title>
-      Update Cases Yo
+      Update Cases
     </md-card-title>
-    <div *ngIf="customer">
-      <h2>{{customer.customer}} details!</h2>
-    </div>
+    <app-customer-multi-barchart *ngIf="customer" [customerId]='customer.id'></app-customer-multi-barchart>
   </md-card>
 </div>
 <div class="flex-container" fxLayout="row">
