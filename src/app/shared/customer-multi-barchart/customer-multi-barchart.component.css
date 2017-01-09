@@ -1,0 +1,5 @@
+app-customer-multi-barchart .d3-barchart {
+  max-height:400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
