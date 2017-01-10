@@ -1,28 +1,28 @@
-.d3-barchart {
+app-index-cases-barchart .d3-barchart {
   overflow: hidden;
   max-height: 450px;
   overflow-y: auto;
 }
 
-.d3-barchart .axis path,
-.d3-barchart .axis line {
+app-index-cases-barchart .d3-barchart .axis path,
+app-index-cases-barchart .d3-barchart .axis line {
   stroke: #999;
 }
 
-.d3-barchart .axis text {
+app-index-cases-barchart .d3-barchart .axis text {
   fill: #999;
 }
 
-.d3-barchart rect {
+app-index-cases-barchart .d3-barchart rect {
   fill: rgb(33, 150, 243);
 }
 
-.d3-barchart text {
+app-index-cases-barchart .d3-barchart text {
   fill: #333;
   font: 10px sans-serif;
   text-anchor: end;
 }
 
-.d3-barchart .amount {
+app-index-cases-barchart .d3-barchart .amount {
   fill: white;
 }

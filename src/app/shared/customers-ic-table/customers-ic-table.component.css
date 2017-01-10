@@ -1,59 +1,59 @@
-.d3-heatmap-table {
+app-customers-ic-table .d3-heatmap-table {
   overflow-x: auto;
   position: relative;
 }
 
 /* disable text selection */
-svg *::selection {
+app-customers-ic-table svg *::selection {
   background: transparent;
 }
 
-svg *::-moz-selection {
+app-customers-ic-table svg *::-moz-selection {
   background: transparent;
 }
 
-rect.selection {
+app-customers-ic-table rect.selection {
   stroke: #333;
   stroke-dasharray: 4px;
   stroke-opacity: 0.5;
   fill: transparent;
 }
 
-rect.cell-border {
+app-customers-ic-table rect.cell-border {
   stroke: #eee;
   stroke-width: 0.3px;
 }
 
-rect.cell-selected {
+app-customers-ic-table rect.cell-selected {
   stroke: rgb(51, 102, 153);
   stroke-width: 0.5px;
 }
 
-rect.cell-hover {
+app-customers-ic-table rect.cell-hover {
   stroke: #F00;
   stroke-width: 0.3px;
 }
 
-text.mono {
+app-customers-ic-table text.mono {
   font-size: 10px;
   font-family: sans-serif;
   fill: #333;
 }
 
-text.text-selected {
+app-customers-ic-table text.text-selected {
   fill: #000;
 }
 
-text.text-highlight {
+app-customers-ic-table text.text-highlight {
   fill: #c00;
 }
 
-text.text-hover {
+app-customers-ic-table text.text-hover {
   fill: #00C;
   cursor: pointer;
 }
 
-#tooltip {
+app-customers-ic-table #tooltip {
   position: absolute;
   width: 200px;
   height: auto;
@@ -68,11 +68,11 @@ text.text-hover {
   pointer-events: none;
 }
 
-#tooltip.hidden {
+app-customers-ic-table #tooltip.hidden {
   display: none;
 }
 
-#tooltip p {
+app-customers-ic-table #tooltip p {
   margin: 0;
   font-family: sans-serif;
   font-size: 12px;

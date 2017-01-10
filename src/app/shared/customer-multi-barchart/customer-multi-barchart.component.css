@@ -3,3 +3,18 @@ app-customer-multi-barchart .d3-barchart {
   overflow-y: auto;
   overflow-x: hidden;
 }
+
+app-customer-multi-barchart text {
+  fill: #333;
+}
+
+app-customer-multi-barchart .axis path,
+app-customer-multi-barchart .axis line {
+  stroke: #333;
+}
+
+app-customer-multi-barchart text.amount {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: end;
+}

@@ -20,7 +20,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
   private chart: any;
   private width: number;
   private height: number;
-  private barHeight = 50;
+  private barGroupHeight = 60;
   private y0: any;
   private y1: any;
   private x: any;
@@ -47,9 +47,6 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
 
         this.updateCases = this.updateCaseService.getRealUpdateCases(response);
 
-
-        // data format:
-        // {category{updateTypes{count}}}
         this.data = d3.nest<any, number>()
           .key(function (d) {
             return d['indexCaseId'];
@@ -64,11 +61,12 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
             if (o['customerId'] === this.customer.id) return o
           }));
 
-
         // sort by number of total updatecases
         this.data = _.sortBy(this.data, function (el) {
           return _.sumBy(el['values'], (o) => o['value']);
         }).reverse();
+
+        console.log(this.data);
 
         this.loading = false;
 
@@ -91,10 +89,10 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
   initChart() {
     let element = this.chartContainer.nativeElement;
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
-    this.height = this.barHeight * this.data.length + this.margin.top + this.margin.bottom;
+    this.height = this.barGroupHeight * this.data.length + this.margin.top + this.margin.bottom;
     this.keys = ['NEW', 'UPDATE', 'DELETE'];
 
-    d3.select(element).html('<p class="lead">Number of Updatecases</p>');
+    d3.select(element).html('<p class="lead">Number of Updatecases per Category</p>');
 
     this.y0 = d3.scaleBand()
       .rangeRound([0, this.height])
@@ -104,10 +102,11 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
       .padding(0.05);
 
     this.x = d3.scaleLinear()
-      .rangeRound([0, this.width]);
+      .rangeRound([0, this.width - 100]);
 
     this.z = d3.scaleOrdinal()
-      .range(["#F44336","#607D8B" , "#4CAF50"]);
+      .range(["#4CAF50","#FFC107", "#F44336"])
+      .domain(['NEW', 'UPDATE', 'DELETE']);
 
     this.svg = d3.select(element).append('svg')
       .attr('width', element.offsetWidth)
@@ -135,19 +134,22 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
       });
     })]).nice();
 
-    this.chart.append("g")
+    let barGroup = this.chart.append("g")
       .selectAll("g")
       .data(this.data)
       .enter().append("g")
       .attr("transform", function (d) {
         return "translate(0," + self.y0(d.key) + ")";
       })
-      .attr('class', 'bars')
-      .selectAll("rect")
+      .attr('class', 'bars');
+
+    let bar = barGroup.selectAll("rect")
+      .attr('class', 'bar')
       .data(function (d) {
         return d.values;
-      })
-      .enter().append("rect")
+      });
+
+    bar.enter().append("rect")
       .attr("x", function (d) {
         return 0;
       })
@@ -160,6 +162,15 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
       })
       .attr("fill", function (d) {
         return self.z(d.key);
+      });
+
+    bar.enter().append("text")
+      .attr("x", d => self.x(d.value) - 3)
+      .attr("y", d => self.y1(d.key) + self.y1.bandwidth()/2)
+      .attr("dy", ".35em")
+      .attr('class', 'amount')
+      .text(function (d) {
+        return d.value;
       });
 
     this.chart.append("g")
@@ -217,6 +228,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
     legend.selectAll("text")
       .attr("x", this.width - 24);
 
+    // sort
     this.change();
   }
 
