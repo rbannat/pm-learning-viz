@@ -164,7 +164,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   }
 
   gotoDetail(customerId:number): void {
-    this.router.navigate(['/customer', customerId]);
+    this.router.navigate(['/customers', customerId]);
   }
 
 }

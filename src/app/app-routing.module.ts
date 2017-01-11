@@ -18,7 +18,7 @@ const appRoutes: Routes = [
     component: CustomersComponent
   },
   {
-    path: 'customer/:id',
+    path: 'customers/:id',
     component: CustomerComponent,
     resolve: {
       customer: CustomerResolver
