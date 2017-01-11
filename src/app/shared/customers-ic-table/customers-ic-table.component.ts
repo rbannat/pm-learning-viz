@@ -357,8 +357,10 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
 
   getMatrixData(): any[] {
     let matrixData = [];
-    for (let i = 0; i < this.customers.length; i++) {
-      for (let j = 0; j < this.categories.length; j++) {
+    let customersLength = this.customers.length;
+    let categoriesLength = this.categories.length;
+    for (let i = 0; i < customersLength; i++) {
+      for (let j = 0; j < categoriesLength; j++) {
         matrixData.push({
           row: i,
           col: j,
