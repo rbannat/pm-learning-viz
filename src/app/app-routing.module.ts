@@ -11,22 +11,26 @@ import {UpdateCaseService} from "./shared/update-case.service";
 const appRoutes: Routes = [
   {
     path: 'dashboard',
-    component: DashboardComponent
+    component: DashboardComponent,
+    data: {title: 'Dashboard'}
   },
   {
     path: 'customers',
-    component: CustomersComponent
+    component: CustomersComponent,
+    data: {title: 'Customers'},
   },
   {
     path: 'customers/:id',
     component: CustomerComponent,
+    data: {title: 'Customers'},
     resolve: {
       customer: CustomerResolver
     }
   },
   {
     path: 'index-cases',
-    component: IndexCasesComponent
+    component: IndexCasesComponent,
+    data: {title: 'Index Cases'},
   },
   { path: '',
     redirectTo: '/dashboard',

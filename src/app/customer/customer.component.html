@@ -1,8 +1,9 @@
-<div class="flex-container" fxLayout="row">
+<md-toolbar>
   <button md-icon-button routerLink="/customers">
     <md-icon>arrow_back</md-icon>
   </button>
-</div>
+  <h4 class="md-title" *ngIf="customer">{{customer.customer}}</h4>
+</md-toolbar>
 <div class="flex-container" fxLayout="row">
   <md-card fxFlex="50%">
     <md-card-title>

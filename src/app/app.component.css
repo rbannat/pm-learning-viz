@@ -4,14 +4,12 @@ html, body{
   height: 100%;
 }
 
+html, body, app-root, md-sidenav-layout, .main-content {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .nav-link.active {
   background: rgba(0,0,0,0.04);
-}
-
-.main-content {
-  overflow-x: hidden;
-}
-
-md-sidenav-layout {
-  height: calc(100% - 64px);
 }
