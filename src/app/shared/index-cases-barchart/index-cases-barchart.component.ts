@@ -19,7 +19,6 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
 
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
-  private indexCases: IndexCase[];
   private loading: Boolean = true;
   private data: any = [];
 
@@ -28,7 +27,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   private width: number;
   private height: number;
   private xScale: any;
-  private barHeight = 20;
+  private barHeight = 40;
   private leftMargin = 100;
 
   constructor(private updateCaseService: UpdateCaseService, private router: Router) {
@@ -38,7 +37,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
     this.getCustomers();
     this.getIndexCases();
 
-    Promise.all([
+    Promise.all<Customer[], IndexCase[]>([
       this.customersPromise,
       this.indexCasesPromise,
     ])
@@ -57,6 +56,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
           });
           this.data.push({
             id: indexCase.id,
+            label: indexCase.representative,
             updateCases: result
           });
         });
@@ -114,6 +114,8 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   }
 
   updateChart() {
+
+    let self = this;
     this.xScale.domain([0, d3.max(this.data, d => d['updateCases'].length)]);
 
     let update = this.chart.selectAll('.bar')
@@ -137,14 +139,17 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       .attr("x", function (d) {
         return -10;
       })
-      .attr("y", this.barHeight / 2)
+      .attr("y", 10)
       .attr("dy", ".35em")
       .text(function (d) {
-        return d['id'];
+        return d['label'];
       })
       .on('click', d => {
         this.gotoDetail(d.id)
       });
+
+    bar.selectAll('text').call(self.wrap, self.leftMargin);
+
 
     bar.append("rect")
       .attr("width", d => this.xScale(d['updateCases'].length))
@@ -174,6 +179,31 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
     let update = this.chart.selectAll('.bar');
     update.select('rect').attr("width", d => this.xScale(d['updateCases'].length));
     update.select('.amount').attr("x", d => this.xScale(d['updateCases'].length) - 3);
+  }
+
+
+ wrap(text:any, width) {
+    text.each(function(){
+    let text = d3.select(this),
+      words = text.text().split(/\s+/).reverse(),
+      word,
+      line = [],
+      lineNumber = 0,
+      lineHeight = 1, // ems
+      y = text.attr("y"),
+      dy = parseFloat(text.attr("dy")),
+      tspan: any = text.text(null).append("tspan").attr("x", -10).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", -10).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+    });
   }
 
   getCustomers(): void {

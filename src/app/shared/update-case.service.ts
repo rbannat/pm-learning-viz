@@ -50,7 +50,7 @@ export class UpdateCaseService {
   }
 
   getIndexCase(id: number): Promise<IndexCase> {
-    return this.getIndexCases().then(indexCases => _.find(indexCases, indexCase => id === indexCase['id']));
+    return this.getIndexCases().then(indexCases => _.find(indexCases, indexCase => id === indexCase['id']) as IndexCase);
   }
 
   /**

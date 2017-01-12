@@ -1,5 +1,5 @@
 export class IndexCase {
   id: number;
-  label: string;
+  representative: string;
   updateCases: any[];
 }
