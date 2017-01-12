@@ -1,5 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Headers, Http} from '@angular/http';
+import { Customer } from '../customer';
+import { IndexCase } from '../index-case';
 
 import 'rxjs/add/operator/toPromise';
 import * as _ from 'lodash';
@@ -13,20 +15,42 @@ export class UpdateCaseService {
   constructor(private http: Http) {
   }
 
-  getCustomers(): Promise<any> {
+  getCustomers(): Promise<Customer[]> {
     return this.http.get(this.customersUrl)
       .toPromise()
-      .then(response => response.json() as any)
+      .then(response => response.json() as Customer[])
       .catch(this.handleError);
   }
 
-  getCustomer(id: number): Promise<any> {
+  getIndexCases(): Promise<IndexCase[]> {
+
+    let unknownCase = {
+      id: 0,
+      type: 'UNKNOWN',
+      representative: 'Andere Frage',
+      industry: 'GENERAL'
+    };
+
+    return this.http.get(this.indexCasesUrl)
+      .toPromise()
+      .then(response => {
+
+        // add special case
+        let data = response.json();
+        data.push(unknownCase);
+
+        return data as IndexCase[]
+      })
+      .catch(this.handleError);
+  }
+
+  getCustomer(id: number): Promise<Customer> {
     return this.getCustomers()
       .then(customers => customers.find(customer => customer.id === id));
   }
 
-  getIndexCase(id: number): Promise<any> {
-    return this.getCustomers().then(customers => _.find(this.getCategories(customers), category => id === category.id));
+  getIndexCase(id: number): Promise<IndexCase> {
+    return this.getIndexCases().then(indexCases => _.find(indexCases, indexCase => id === indexCase['id']));
   }
 
   /**

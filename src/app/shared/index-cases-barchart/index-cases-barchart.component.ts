@@ -1,6 +1,8 @@
-import { Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input } from '@angular/core';
+import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {UpdateCaseService} from 'app/shared/update-case.service';
+import {Customer} from '../../customer';
+import {IndexCase} from '../../index-case';
 import * as d3 from 'd3';
 
 @Component({
@@ -14,6 +16,13 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() topX: number;
+
+  private customersPromise: Promise<Customer[]>;
+  private indexCasesPromise: Promise<IndexCase[]>;
+  private indexCases: IndexCase[];
+  private loading: Boolean = true;
+  private data: any = [];
+
   private margin: any = {top: 10, bottom: 10, left: 10, right: 25};
   private chart: any;
   private width: number;
@@ -21,34 +30,53 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   private xScale: any;
   private barHeight = 20;
   private leftMargin = 100;
-  dataPromise: Promise<any>;
-  data: any;
-  loading: Boolean = true;
 
-  constructor(private updateCaseService: UpdateCaseService, private router: Router) { }
+  constructor(private updateCaseService: UpdateCaseService, private router: Router) {
+  }
 
   ngOnInit() {
     this.getCustomers();
+    this.getIndexCases();
 
-    this.dataPromise.then((response) => {
-      let updateCases = this.updateCaseService.getRealUpdateCases(response);
-      this.data = d3.nest()
-        .key(function(d) { return d['indexCaseId']; })
-        .entries(updateCases);
+    Promise.all([
+      this.customersPromise,
+      this.indexCasesPromise,
+    ])
+      .then(([customers, indexCases]) => {
+        // console.log('customers', customers);
+        // console.log('indexCases', indexCases);
 
-      this.data.sort(function (a, b) {
-        return b["values"].length - a["values"].length;
+        let updateCases = this.updateCaseService.getRealUpdateCases(customers);
+
+        this.loading = false;
+
+        // create data array
+        indexCases.forEach(indexCase => {
+          let result = updateCases.filter(updateCase => {
+            return updateCase.indexCaseId === indexCase.id;
+          });
+          this.data.push({
+            id: indexCase.id,
+            updateCases: result
+          });
+        });
+
+        this.data.sort(function (a, b) {
+          return b["updateCases"].length - a["updateCases"].length;
+        });
+
+        if (this.topX) {
+          this.data = this.data.slice(0, this.topX);
+        }
+
+        this.initChart();
+        this.updateChart();
+
+      })
+      .catch(err => {
+        // Receives first rejection among the Promises
+        console.log(err);
       });
-
-      if (this.topX) {
-        this.data = this.data.slice(0, this.topX);
-      }
-
-      this.loading = false;
-
-      this.initChart();
-      this.updateChart();
-    });
   }
 
   ngOnChanges() {
@@ -78,7 +106,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
     // xDomain
-    let xDomain = [0, d3.max(this.data, d => d['values'].length)];
+    let xDomain = [0, d3.max(this.data, d => d['updateCases'].length)];
     // xScale
     this.xScale = d3.scaleLinear()
       .domain(xDomain)
@@ -86,7 +114,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   }
 
   updateChart() {
-    this.xScale.domain([0, d3.max(this.data, d => d['values'].length)]);
+    this.xScale.domain([0, d3.max(this.data, d => d['updateCases'].length)]);
 
     let update = this.chart.selectAll('.bar')
       .data(this.data);
@@ -112,23 +140,23 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .text(function (d) {
-        return d['key'];
+        return d['id'];
       })
       .on('click', d => {
-        this.gotoDetail(d.key)
+        this.gotoDetail(d.id)
       });
 
     bar.append("rect")
-      .attr("width", d => this.xScale(d['values'].length))
+      .attr("width", d => this.xScale(d['updateCases'].length))
       .attr("height", this.barHeight - 1);
 
     bar.append("text")
-      .attr("x", d => this.xScale(d['values'].length) - 3)
+      .attr("x", d => this.xScale(d['updateCases'].length) - 3)
       .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
       .text(function (d) {
-        return (d['values'].length < 5) ? '' : d['values'].length;
+        return (d['updateCases'].length < 5) ? '' : d['updateCases'].length;
       });
   }
 
@@ -137,22 +165,26 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     d3.select(element).select('svg').attr('width', element.offsetWidth);
     // xDomain
-    let xDomain = [0, d3.max(this.data, d => d['values'].length)];
+    let xDomain = [0, d3.max(this.data, d => d['updateCases'].length)];
     // xScale
     this.xScale = d3.scaleLinear()
       .domain(xDomain)
       .range([0, this.width - this.leftMargin]);
 
     let update = this.chart.selectAll('.bar');
-    update.select('rect').attr("width", d => this.xScale(d['values'].length));
-    update.select('.amount').attr("x", d => this.xScale(d['values'].length) - 3);
+    update.select('rect').attr("width", d => this.xScale(d['updateCases'].length));
+    update.select('.amount').attr("x", d => this.xScale(d['updateCases'].length) - 3);
   }
 
   getCustomers(): void {
-    this.dataPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.updateCaseService.getCustomers();
   }
 
-  gotoDetail(indexCaseId:number): void {
+  getIndexCases(): void {
+    this.indexCasesPromise = this.updateCaseService.getIndexCases();
+  }
+
+  gotoDetail(indexCaseId: number): void {
     this.router.navigate(['/index-cases', indexCaseId]);
   }
 

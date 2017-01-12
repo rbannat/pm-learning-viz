@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import {ActivatedRoute, Params}   from '@angular/router';
 import {UpdateCaseService} from 'app/shared/update-case.service';
+import {IndexCase} from 'app/index-case';
 import 'rxjs/add/operator/switchMap';
 
 @Component({
@@ -10,7 +11,7 @@ import 'rxjs/add/operator/switchMap';
 })
 export class IndexCaseComponent implements OnInit {
 
-  @Input() indexCase: any;
+  @Input() indexCase: IndexCase;
 
   constructor(private updateCaseService: UpdateCaseService,
               private route: ActivatedRoute) {

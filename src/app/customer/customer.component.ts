@@ -24,7 +24,9 @@ export class CustomerComponent implements OnInit {
   ngOnInit() {
     this.route.params
       .switchMap((params: Params) => this.updateCaseService.getCustomer(+params['id']))
-      .subscribe(customer => this.customer = customer);
+      .subscribe(customer => {
+        this.customer = customer;
+      });
   }
 
   goBack(): void {
