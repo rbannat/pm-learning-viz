@@ -1,0 +1,20 @@
+<md-toolbar>
+  <button md-icon-button routerLink="/index-cases">
+    <md-icon>arrow_back</md-icon>
+  </button>
+  <h4 class="md-title" *ngIf="indexCase">{{indexCase.id}}</h4>
+</md-toolbar>
+<div class="flex-container" fxLayout="row">
+  <md-card fxFlex="50%">
+    <md-card-title>
+      Update Cases
+    </md-card-title>
+  </md-card>
+</div>
+<div class="flex-container" fxLayout="row">
+  <md-card fxFlex="100%">
+    <md-card-title>
+      Update Cases by Index Case
+    </md-card-title>
+  </md-card>
+</div>

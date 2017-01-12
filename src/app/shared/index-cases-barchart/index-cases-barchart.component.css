@@ -21,6 +21,7 @@ app-index-cases-barchart .d3-barchart text {
   fill: #333;
   font: 10px sans-serif;
   text-anchor: end;
+  cursor: pointer;
 }
 
 app-index-cases-barchart .d3-barchart .amount {

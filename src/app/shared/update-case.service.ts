@@ -25,6 +25,10 @@ export class UpdateCaseService {
       .then(customers => customers.find(customer => customer.id === id));
   }
 
+  getIndexCase(id: number): Promise<any> {
+    return this.getCustomers().then(customers => _.find(this.getCategories(customers), category => id === category.id));
+  }
+
   /**
    * Creates flat array of all update cases from customer list data
    * @param customerData

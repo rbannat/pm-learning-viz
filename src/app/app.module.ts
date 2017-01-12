@@ -17,6 +17,7 @@ import { IndexCasesBarchartComponent } from './shared/index-cases-barchart/index
 import { CustomersIcTableComponent } from './shared/customers-ic-table/customers-ic-table.component';
 import { CustomerComponent } from './customer/customer.component';
 import { CustomerMultiBarchartComponent } from './shared/customer-multi-barchart/customer-multi-barchart.component';
+import { IndexCaseComponent } from './index-case/index-case.component';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { CustomerMultiBarchartComponent } from './shared/customer-multi-barchart
     IndexCasesBarchartComponent,
     CustomersIcTableComponent,
     CustomerComponent,
-    CustomerMultiBarchartComponent
+    CustomerMultiBarchartComponent,
+    IndexCaseComponent
   ],
   imports: [
     BrowserModule,

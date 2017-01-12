@@ -1,4 +1,5 @@
 import { Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input } from '@angular/core';
+import {Router} from '@angular/router';
 import {UpdateCaseService} from 'app/shared/update-case.service';
 import * as d3 from 'd3';
 
@@ -24,7 +25,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   data: any;
   loading: Boolean = true;
 
-  constructor(private updateCaseService: UpdateCaseService) { }
+  constructor(private updateCaseService: UpdateCaseService, private router: Router) { }
 
   ngOnInit() {
     this.getCustomers();
@@ -112,6 +113,9 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       .attr("dy", ".35em")
       .text(function (d) {
         return d['key'];
+      })
+      .on('click', d => {
+        this.gotoDetail(d.key)
       });
 
     bar.append("rect")
@@ -146,6 +150,10 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
 
   getCustomers(): void {
     this.dataPromise = this.updateCaseService.getCustomers();
+  }
+
+  gotoDetail(indexCaseId:number): void {
+    this.router.navigate(['/index-cases', indexCaseId]);
   }
 
 }
