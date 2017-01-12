@@ -7,8 +7,8 @@ import * as _ from 'lodash';
 @Injectable()
 export class UpdateCaseService {
 
-  private customersUrl = 'assets/customer-list.json'; // updatecase/list
-  private customerByIdUrl = '/updatecase/customer/list?id=';
+  private customersUrl = 'assets/customers.json'; // customers with updatecases
+  private indexCasesUrl = 'assets/index-cases.json'; // indexcases
 
   constructor(private http: Http) {
   }
