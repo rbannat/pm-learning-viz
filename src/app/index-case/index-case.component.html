@@ -4,17 +4,27 @@
   </button>
   <h4 class="md-title" *ngIf="indexCase">{{indexCase.id}}</h4>
 </md-toolbar>
+
 <div class="flex-container" fxLayout="row">
   <md-card fxFlex="50%">
     <md-card-title>
-      Update Cases
+      Total Updates
     </md-card-title>
   </md-card>
+
+  <md-card fxFlex="50%">
+    <md-card-title>
+      Update By Customer
+    </md-card-title>
+
+    <app-customers-barchart *ngIf="indexCase" [indexCaseId]=indexCase.id></app-customers-barchart>
+  </md-card>
 </div>
+
 <div class="flex-container" fxLayout="row">
   <md-card fxFlex="100%">
     <md-card-title>
-      Update Cases by Index Case
+      Related Index Cases
     </md-card-title>
   </md-card>
 </div>

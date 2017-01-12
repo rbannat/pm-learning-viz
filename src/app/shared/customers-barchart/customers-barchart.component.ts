@@ -15,6 +15,8 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() topX: number;
+  @Input() indexCaseId: number;
+
   private margin: any = {top: 10, bottom: 10, left: 10, right: 25};
   private chart: any;
   private width: number;
@@ -39,11 +41,19 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
 
       this.customers = response;
       this.updateCases = this.updateCaseService.getRealUpdateCases(response);
-      this.data = _.map(this.customers, customer => {
+
+      if (this.indexCaseId) {
+        this.data = _.filter(this.customers, customer => _.some(customer['icuElements'], icuElement => icuElement['indexCaseId'] === this.indexCaseId));
+        this.updateCases = _.filter(this.updateCases, updateCase => updateCase['indexCaseId'] === this.indexCaseId || updateCase['source'] === this.indexCaseId);
+      }
+
+      this.data = _.map(this.data, customer => {
         return {
           id: customer['id'],
           customer: customer['customer'],
-          updateCaseCount: _.filter(this.updateCases, function(o) { if (o['customerId' ] === customer['id']) return o }).length
+          updateCaseCount: _.filter(this.updateCases, updateCase => {
+            return updateCase['customerId'] === customer['id']
+          }).length
         }
       });
 
@@ -163,7 +173,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
     this.dataPromise = this.updateCaseService.getCustomers();
   }
 
-  gotoDetail(customerId:number): void {
+  gotoDetail(customerId: number): void {
     this.router.navigate(['/customers', customerId]);
   }
 
