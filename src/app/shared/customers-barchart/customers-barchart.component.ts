@@ -25,7 +25,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   private barHeight = 20;
   private leftMargin = 100;
   dataPromise: Promise<any>;
-  data: any;
+  private data: any[];
   customers: any;
   updateCases: any;
   loading: Boolean = true;
@@ -43,11 +43,11 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
       this.updateCases = this.updateCaseService.getRealUpdateCases(response);
 
       if (this.indexCaseId) {
-        this.data = _.filter(this.customers, customer => _.some(customer['icuElements'], icuElement => icuElement['indexCaseId'] === this.indexCaseId));
+        this.customers = _.filter(this.customers, customer => _.some(customer['icuElements'], icuElement => icuElement['indexCaseId'] === this.indexCaseId));
         this.updateCases = _.filter(this.updateCases, updateCase => updateCase['indexCaseId'] === this.indexCaseId || updateCase['source'] === this.indexCaseId);
       }
 
-      this.data = _.map(this.data, customer => {
+      this.data = _.map(this.customers, customer => {
         return {
           id: customer['id'],
           customer: customer['customer'],
