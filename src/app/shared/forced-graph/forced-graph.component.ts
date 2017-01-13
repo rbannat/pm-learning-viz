@@ -89,7 +89,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     this.simulation = d3.forceSimulation()
       .force("link", d3.forceLink().id(function (d) {
         return d['indexCaseId'];
-      }))
+      }).distance(100))
       .force("collide", d3.forceCollide(function (d) {
         return d['r'];
       }))
@@ -178,7 +178,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
     node.append("title")
       .text(function (d) {
-        return d.representative;
+        return d.title;
       });
 
     let labels = this.chart.append("g")
@@ -259,26 +259,40 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       links: []
     };
 
-    // store unique index cases
-    let nodes = _.map(indexCases, indexCase => {
-        let updateCaseCount = _.filter(updateCases, updateCase => updateCase.indexCaseId === indexCase.id).length;
-        return {
-          indexCaseId: indexCase.id,
-          title: indexCase.representative,
-          r: (updateCaseCount !== 0) ? Math.sqrt(updateCaseCount / Math.PI) * 5 + 2 : 2,
-          group: 1
-        }
-      }
-    );
-    graphData.nodes = nodes;
+    // count indexCases for ALL updatecases
+    let indexCaseCounts = _.countBy(updateCases, 'indexCaseId');
 
-    // create links of update cases
+    // filter UPDATEs
     let updates = _.filter(updateCases, uc => uc.updateType === 'UPDATE');
+
+    // only create links for nodes where indexCase exists
     updates = _.filter(updates, uc => {
       let target = _.find(indexCases, ic => ic.id === uc.indexCaseId);
       let source = _.find(indexCases, ic => ic.id === uc.source);
       return typeof source !== 'undefined' && typeof target !== 'undefined';
     });
+
+    // store nodes with updates
+    let targetNodes = _.uniqBy(updates, 'indexCaseId').map(item => {
+        return {
+          indexCaseId: item.indexCaseId,
+          title: _.find(indexCases, ic => item.indexCaseId === ic.id)['representative'],
+          r: (indexCaseCounts[item.indexCaseId]) ? Math.sqrt(indexCaseCounts[item.indexCaseId]) * 3 + 5 : 5,
+          group: 1
+        }
+      }
+    );
+    let sourceNodes = _.uniqBy(updates, 'source').map(item => {
+        return {
+          indexCaseId: item.source,
+          title: _.find(indexCases, ic => item.indexCaseId === ic.id)['representative'],
+          r: (indexCaseCounts[item.source]) ? Math.sqrt(indexCaseCounts[item.source]) * 3 + 5 : 5,
+          group: 1
+        }
+      }
+    );
+
+    graphData.nodes = _.unionBy(targetNodes, sourceNodes, 'indexCaseId');
 
     // create links
     let links = [];
