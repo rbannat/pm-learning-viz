@@ -22,13 +22,13 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   private loading: Boolean = true;
   private data: any = [];
 
-  private margin: any = {top: 10, bottom: 10, left: 10, right: 25};
+  private margin: any = {top: 10, bottom: 10, left: 10, right: 50};
   private chart: any;
   private width: number;
   private height: number;
   private xScale: any;
   private barHeight = 40;
-  private leftMargin = 100;
+  private leftMargin = 150;
 
   constructor(private updateCaseService: UpdateCaseService, private router: Router) {
   }
@@ -139,7 +139,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       .attr("x", function (d) {
         return -10;
       })
-      .attr("y", 10)
+      .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .text(function (d) {
         return d['label'];
@@ -156,12 +156,12 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       .attr("height", this.barHeight - 1);
 
     bar.append("text")
-      .attr("x", d => this.xScale(d['updateCases'].length) - 3)
+      .attr("x", d => this.xScale(d['updateCases'].length) - 10)
       .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
       .text(function (d) {
-        return (d['updateCases'].length < 5) ? '' : d['updateCases'].length;
+        return (d['updateCases'].length);
       });
   }
 
@@ -178,7 +178,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
 
     let update = this.chart.selectAll('.bar');
     update.select('rect').attr("width", d => this.xScale(d['updateCases'].length));
-    update.select('.amount').attr("x", d => this.xScale(d['updateCases'].length) - 3);
+    update.select('.amount').attr("x", d => this.xScale(d['updateCases'].length) - 10);
   }
 
 
@@ -189,10 +189,11 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       word,
       line = [],
       lineNumber = 0,
-      lineHeight = 1, // ems
+      lineHeight = 1.1, // ems
       y = text.attr("y"),
+      x = text.attr("x"),
       dy = parseFloat(text.attr("dy")),
-      tspan: any = text.text(null).append("tspan").attr("x", -10).attr("y", y).attr("dy", dy + "em");
+      tspan: any = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
     while (word = words.pop()) {
       line.push(word);
       tspan.text(line.join(" "));
@@ -200,8 +201,17 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
         line.pop();
         tspan.text(line.join(" "));
         line = [word];
-        tspan = text.append("tspan").attr("x", -10).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+        tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
       }
+    }
+
+    //vertical align center
+    if (lineNumber > 0){
+      text.selectAll('tspan').each(function(){
+        let tspan = d3.select(this);
+        let dy = parseFloat(tspan.attr("dy"));
+        tspan.attr('dy', dy - (lineNumber)/2 * lineHeight+ "em");
+      });
     }
     });
   }
