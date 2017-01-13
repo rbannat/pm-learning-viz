@@ -1,4 +1,5 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import {Router} from '@angular/router';
 import {UpdateCaseService} from 'app/shared/update-case.service';
 import {Customer} from 'app/customer';
 import {IndexCase} from 'app/index-case';
@@ -40,7 +41,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
   private simulation: any;
   private color: any;
 
-  constructor(private updateCaseService: UpdateCaseService) {
+  constructor(private updateCaseService: UpdateCaseService, private router: Router) {
   }
 
   ngOnInit() {
@@ -171,6 +172,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .enter().append("circle")
       .attr("r", d => d.r)
       .attr("fill", d => this.color(d.group))
+      .on('click', d => {
+        this.gotoDetail(d.indexCaseId)
+      })
       .call(d3.drag()
         .on("start", this.dragstarted.bind(this))
         .on("drag", this.dragged.bind(this))
@@ -316,6 +320,10 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     graphData.links = links;
 
     return graphData;
+  }
+
+  gotoDetail(indexCaseId: number): void {
+    this.router.navigate(['/index-cases', indexCaseId]);
   }
 
 }
