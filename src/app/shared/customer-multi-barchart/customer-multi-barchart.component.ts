@@ -1,6 +1,9 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import {Router} from '@angular/router';
 
 import {UpdateCaseService} from 'app/shared/update-case.service';
+import {Customer} from 'app/customer';
+import {IndexCase} from 'app/index-case';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
@@ -14,8 +17,15 @@ import * as _ from 'lodash';
 export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() customerId: any;
-  private categories: any;
-  private margin: any = {top: 10, bottom: 10, left: 50, right: 25};
+
+  private customersPromise: Promise<Customer[]>;
+  private indexCasesPromise: Promise<IndexCase[]>;
+  private loading: Boolean = true;
+  private data: any[];
+  private customer: any;
+  private updateCases: any;
+
+  private margin: any = {top: 10, bottom: 10, left: 150, right: 25};
   private svg: any;
   private chart: any;
   private width: number;
@@ -26,27 +36,28 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
   private x: any;
   private z: any;
   private keys: string[];
-  dataPromise: Promise<any>;
-  data: any;
-  customers: any;
-  private customer: any;
-  updateCases: any;
-  loading: Boolean = true;
 
-  constructor(private updateCaseService: UpdateCaseService) {
+
+  constructor(private updateCaseService: UpdateCaseService, private router: Router) {
   }
 
   ngOnInit() {
     this.getCustomers();
+    this.getIndexCases();
 
-    this.dataPromise.then((response) => {
+    Promise.all<Customer[], IndexCase[]>([
+      this.customersPromise,
+      this.indexCasesPromise,
+    ])
+      .then(([customers, indexCases]) => {
+        // console.log('customers', customers);
+        // console.log('indexCases', indexCases);
 
-        this.customers = response;
-        this.categories = this.updateCaseService.getCategories(response);
-        this.customer = this.customers.find(customer => customer.id === this.customerId);
+        this.customer = customers.find(customer => customer.id === this.customerId);
+        this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
 
-        this.updateCases = this.updateCaseService.getRealUpdateCases(response);
 
+        //todo: show all index cases
         this.data = d3.nest<any, number>()
           .key(function (d) {
             return d['indexCaseId'];
@@ -61,19 +72,29 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
             if (o['customerId'] === this.customer.id) return o
           }));
 
+        this.data = _.filter(this.data, item => indexCases.some(indexCase => indexCase.id == item.key));
+
+        // add index case name
+        this.data.map(item => {
+          item.label = indexCases.find(ic => ic.id === parseInt(item.key)).representative;
+          return item;
+        });
+
         // sort by number of total updatecases
         this.data = _.sortBy(this.data, function (el) {
           return _.sumBy(el['values'], (o) => o['value']);
         }).reverse();
 
-        console.log(this.data);
-
         this.loading = false;
 
         this.initChart();
         this.updateChart();
-      }
-    );
+
+      })
+      .catch(err => {
+        // Receives first rejection among the Promises
+        console.log(err);
+      });
   }
 
   ngOnChanges() {
@@ -105,7 +126,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
       .rangeRound([0, this.width - 100]);
 
     this.z = d3.scaleOrdinal()
-      .range(["#4CAF50","#FFC107", "#F44336"])
+      .range(["#4CAF50", "#FFC107", "#F44336"])
       .domain(['NEW', 'UPDATE', 'DELETE']);
 
     this.svg = d3.select(element).append('svg')
@@ -121,7 +142,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
     let self = this;
 
     this.y0.domain(this.data.map(function (d) {
-      return d.key;
+      return d.label;
     }));
 
     this.y1
@@ -139,7 +160,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
       .data(this.data)
       .enter().append("g")
       .attr("transform", function (d) {
-        return "translate(0," + self.y0(d.key) + ")";
+        return "translate(0," + self.y0(d.label) + ")";
       })
       .attr('class', 'bars');
 
@@ -166,7 +187,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
 
     bar.enter().append("text")
       .attr("x", d => self.x(d.value) - 3)
-      .attr("y", d => self.y1(d.key) + self.y1.bandwidth()/2)
+      .attr("y", d => self.y1(d.key) + self.y1.bandwidth() / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
       .text(function (d) {
@@ -175,7 +196,12 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
 
     this.chart.append("g")
       .attr("class", "axis")
-      .call(d3.axisLeft(self.y0));
+      .call(d3.axisLeft(self.y0))
+      .selectAll(".tick text")
+      .on('click', (d,i) => {
+        this.gotoDetail(parseInt(this.data[i].key))
+      })
+      .call(this.wrap, this.margin.left - 9);
 
     let legend = this.chart.append("g")
       .attr("font-family", "sans-serif")
@@ -232,6 +258,40 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
     this.change();
   }
 
+  wrap(text: any, width) {
+    text.each(function () {
+      let text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        x = text.attr("x"),
+        dy = parseFloat(text.attr("dy")),
+        tspan: any = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+      while (word = words.pop()) {
+        line.push(word);
+        tspan.text(line.join(" "));
+        if (tspan.node().getComputedTextLength() > width) {
+          line.pop();
+          tspan.text(line.join(" "));
+          line = [word];
+          tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+        }
+      }
+
+      //vertical align center
+      if (lineNumber > 0) {
+        text.selectAll('tspan').each(function () {
+          let tspan = d3.select(this);
+          let dy = parseFloat(tspan.attr("dy"));
+          tspan.attr('dy', dy - (lineNumber) / 2 * lineHeight + "em");
+        });
+      }
+    });
+  }
+
   change() {
 
     let self = this;
@@ -263,7 +323,16 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
   }
 
   getCustomers(): void {
-    this.dataPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.updateCaseService.getCustomers();
   }
+
+  getIndexCases(): void {
+    this.indexCasesPromise = this.updateCaseService.getIndexCases();
+  }
+
+  gotoDetail(indexCaseId: number): void {
+    this.router.navigate(['/index-cases', indexCaseId]);
+  }
+
 
 }

@@ -13,6 +13,10 @@ app-customer-multi-barchart .axis line {
   stroke: #333;
 }
 
+app-customer-multi-barchart .axis .tick text {
+  cursor: pointer;
+}
+
 app-customer-multi-barchart text.amount {
   fill: white;
   font: 10px sans-serif;
