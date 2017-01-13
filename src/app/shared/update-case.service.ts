@@ -54,25 +54,6 @@ export class UpdateCaseService {
   }
 
   /**
-   * Creates flat array of all update cases from customer list data
-   * @param customerData
-   * @returns {Array}
-   */
-  getUpdateCases(customerData: any[]): any[] {
-
-    let flatData = [];
-    for (let customer of customerData) {
-      for (let icu of customer.icuElements) {
-        let newUpdateCase = icu;
-        newUpdateCase.id = customer.id + '-' + icu.id;
-        newUpdateCase.customerId = customer.id;
-        flatData.push(newUpdateCase);
-      }
-    }
-    return flatData;
-  }
-
-  /**
    * Returns all existing categories.
    * @param categories
    * @returns {Array}

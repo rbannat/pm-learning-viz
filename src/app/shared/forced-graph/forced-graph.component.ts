@@ -1,5 +1,7 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {UpdateCaseService} from 'app/shared/update-case.service';
+import {Customer} from 'app/customer';
+import {IndexCase} from 'app/index-case';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
@@ -25,31 +27,48 @@ import * as _ from 'lodash';
 export class ForcedGraphComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
+
+  private customersPromise: Promise<Customer[]>;
+  private indexCasesPromise: Promise<IndexCase[]>;
+  private loading: Boolean = true;
+  private data: any;
+
   private margin: any = {top: 10, bottom: 10, left: 10, right: 10};
   private chart: any;
   private width: number;
   private height: number;
   private simulation: any;
   private color: any;
-  dataPromise: Promise<any>;
-  data: any;
-  loading: Boolean = true;
 
   constructor(private updateCaseService: UpdateCaseService) {
   }
 
   ngOnInit() {
+
     this.getCustomers();
+    this.getIndexCases();
 
-    this.dataPromise.then((response) => {
+    Promise.all<Customer[], IndexCase[]>([
+      this.customersPromise,
+      this.indexCasesPromise,
+    ])
+      .then(([customers, indexCases]) => {
+        // console.log('customers', customers);
+        // console.log('indexCases', indexCases);
 
-      this.data = this.getGraphData(response);
+        let updateCases = this.updateCaseService.getRealUpdateCases(customers);
 
-      this.loading = false;
+        this.data = this.getGraphData(indexCases, updateCases);
+        this.loading = false;
 
-      this.initChart();
-      this.updateChart();
-    });
+        this.initChart();
+        this.updateChart();
+
+      })
+      .catch(err => {
+        // Receives first rejection among the Promises
+        console.log(err);
+      });
   }
 
   ngOnChanges() {
@@ -121,7 +140,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     this.chart.append("defs").selectAll("marker")
       .data(["default"])
       .enter().append("marker")
-      .attr("id", function(d) { return d; })
+      .attr("id", function (d) {
+        return d;
+      })
       .attr("viewBox", "0 -5 10 10")
       .attr("refX", 10)
       .attr("refY", 0)
@@ -130,7 +151,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M0,-5L10,0L0,5")
-      .attr("class","arrowHead");
+      .attr("class", "arrowHead");
 
     let path = this.chart.append("g")
       .attr("class", "links")
@@ -157,7 +178,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
     node.append("title")
       .text(function (d) {
-        return d.indexCaseId;
+        return d.representative;
       });
 
     let labels = this.chart.append("g")
@@ -165,7 +186,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .selectAll("text")
       .data(this.data.nodes)
       .enter().append("text")
-      .text(function(d) { return d.indexCaseId; });
+      .text(function (d) {
+        return d.indexCaseId;
+      });
 
     this.simulation
       .nodes(this.data.nodes)
@@ -211,7 +234,6 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       // x and y distances from center to outside edge of source node
       let offsetXS = (dx * d.source.r) / pathLength;
       let offsetYS = (dy * d.source.r) / pathLength;
-
       return "M" + (d.source.x + offsetXS) + "," + (d.source.y + offsetYS) + "A" + dr + "," + dr + " 0 0,1 " + (d.target.x - offsetX) + "," + (d.target.y - offsetY);
     }
   }
@@ -224,29 +246,26 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
   }
 
   getCustomers(): void {
-    this.dataPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.updateCaseService.getCustomers();
   }
 
-  getGraphData(response: any): any {
+  getIndexCases(): void {
+    this.indexCasesPromise = this.updateCaseService.getIndexCases();
+  }
+
+  getGraphData(indexCases: IndexCase[], updateCases: any[]): any {
     let graphData = {
       nodes: [],
       links: []
     };
 
-    //get flat array of all update cases
-    let flatData = this.updateCaseService.getUpdateCases(response);
-
-    //get flat array of all real updateCases by skipping pseudo deletes and adding "update" type
-    let updateCases = this.updateCaseService.getRealUpdateCases(response);
-
-    // count indexCases
-    let indexCaseCounts = _.countBy(updateCases, 'indexCaseId');
-
     // store unique index cases
-    let nodes = _.uniqBy(flatData, 'indexCaseId').map(item => {
+    let nodes = _.map(indexCases, indexCase => {
+        let updateCaseCount = _.filter(updateCases, updateCase => updateCase.indexCaseId === indexCase.id).length;
         return {
-          indexCaseId: item.indexCaseId,
-          r: (indexCaseCounts[item.indexCaseId]) ? Math.sqrt(indexCaseCounts[item.indexCaseId]/Math.PI)*5 + 2 : 2,
+          indexCaseId: indexCase.id,
+          title: indexCase.representative,
+          r: (updateCaseCount !== 0) ? Math.sqrt(updateCaseCount / Math.PI) * 5 + 2 : 2,
           group: 1
         }
       }
@@ -255,6 +274,11 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
     // create links of update cases
     let updates = _.filter(updateCases, uc => uc.updateType === 'UPDATE');
+    updates = _.filter(updates, uc => {
+      let target = _.find(indexCases, ic => ic.id === uc.indexCaseId);
+      let source = _.find(indexCases, ic => ic.id === uc.source);
+      return typeof source !== 'undefined' && typeof target !== 'undefined';
+    });
 
     // create links
     let links = [];
