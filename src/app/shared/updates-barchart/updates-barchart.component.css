@@ -1,0 +1,24 @@
+app-updates-barchart .d3-barchart {
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+app-updates-barchart .d3-barchart .axis path,
+app-updates-barchart .d3-barchart .axis line {
+  stroke: #999;
+}
+
+app-updates-barchart .d3-barchart .axis--y text {
+  fill: #999;
+  text-anchor: left;
+}
+
+app-updates-barchart .d3-barchart text {
+  fill: #333;
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+app-updates-barchart .d3-barchart .amount {
+  fill: white;
+}

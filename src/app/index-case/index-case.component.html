@@ -6,15 +6,16 @@
 </md-toolbar>
 
 <div class="flex-container" fxLayout="row">
-  <md-card fxFlex="50%">
+  <md-card fxFlex="33%">
     <md-card-title>
-      Total Updates
+      Total Number of Update Cases
     </md-card-title>
+    <app-updates-barchart *ngIf="indexCase" [indexCaseId]=indexCase.id></app-updates-barchart>
   </md-card>
 
-  <md-card fxFlex="50%">
+  <md-card fxFlex="66%">
     <md-card-title>
-      Update By Customer
+      Update Cases by Customer
     </md-card-title>
 
     <app-customers-barchart *ngIf="indexCase" [indexCaseId]=indexCase.id></app-customers-barchart>
