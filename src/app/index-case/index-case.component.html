@@ -15,17 +15,21 @@
 
   <md-card fxFlex="66%">
     <md-card-title>
-      Update Cases by Customer
+      Related Index Cases
     </md-card-title>
 
-    <app-customers-barchart *ngIf="indexCase" [indexCaseId]=indexCase.id></app-customers-barchart>
+    <app-forced-graph *ngIf="indexCase" [indexCaseId]=indexCase.id></app-forced-graph>
   </md-card>
 </div>
 
 <div class="flex-container" fxLayout="row">
-  <md-card fxFlex="100%">
-    <md-card-title>
-      Related Index Cases
-    </md-card-title>
-  </md-card>
+  <div fxFlex="33%">
+    <md-card>
+      <md-card-title>
+        Update Cases by Customer
+      </md-card-title>
+
+      <app-customers-barchart *ngIf="indexCase" [indexCaseId]=indexCase.id></app-customers-barchart>
+    </md-card>
+  </div>
 </div>

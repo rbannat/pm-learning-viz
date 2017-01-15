@@ -28,6 +28,7 @@ import * as _ from 'lodash';
 export class ForcedGraphComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
+  @Input() indexCaseId: number;
 
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
@@ -58,6 +59,10 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         // console.log('indexCases', indexCases);
 
         let updateCases = this.updateCaseService.getRealUpdateCases(customers);
+
+        if(this.indexCaseId !== undefined){
+          updateCases = _.filter(updateCases, uc => uc.indexCaseId === this.indexCaseId || uc.source === this.indexCaseId);
+        }
 
         this.data = this.getGraphData(indexCases, updateCases);
         this.loading = false;
@@ -287,9 +292,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       }
     );
     let sourceNodes = _.uniqBy(updates, 'source').map(item => {
-        return {
+      return {
           indexCaseId: item.source,
-          title: _.find(indexCases, ic => item.indexCaseId === ic.id)['representative'],
+          title: _.find(indexCases, ic => item.source === ic.id)['representative'],
           r: (indexCaseCounts[item.source]) ? Math.sqrt(indexCaseCounts[item.source]) * 3 + 5 : 5,
           group: 1
         }
