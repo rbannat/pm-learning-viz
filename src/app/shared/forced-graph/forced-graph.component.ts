@@ -60,7 +60,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
         let updateCases = this.updateCaseService.getRealUpdateCases(customers);
 
-        if(this.indexCaseId !== undefined){
+        if (this.indexCaseId !== undefined) {
           updateCases = _.filter(updateCases, uc => uc.indexCaseId === this.indexCaseId || uc.source === this.indexCaseId);
         }
 
@@ -99,7 +99,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .force("collide", d3.forceCollide(function (d) {
         return d['r'];
       }))
-      .force("charge", d3.forceManyBody().strength(-270))
+      .force("charge", d3.forceManyBody().strength(-500))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2));
 
     this.color = d3.scaleOrdinal(d3.schemeCategory20);
@@ -141,6 +141,8 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
   }
 
   updateChart() {
+
+    let self = this;
 
     // Per-type markers, as they don't inherit styles.
     this.chart.append("defs").selectAll("marker")
@@ -196,8 +198,10 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .data(this.data.nodes)
       .enter().append("text")
       .text(function (d) {
-        return d.indexCaseId;
-      });
+        return d.title;
+      })
+      .attr("dy", ".35")
+      .call(self.wrap);
 
     this.simulation
       .nodes(this.data.nodes)
@@ -224,6 +228,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         .attr("y", function (d) {
           return d.y + 3;
         });
+      labels.selectAll('tspan').attr('x', d => d.x);
     }
 
     function linkArc(d) {
@@ -286,16 +291,16 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         return {
           indexCaseId: item.indexCaseId,
           title: _.find(indexCases, ic => item.indexCaseId === ic.id)['representative'],
-          r: (indexCaseCounts[item.indexCaseId]) ? Math.sqrt(indexCaseCounts[item.indexCaseId]) * 3 + 5 : 5,
+          r: (indexCaseCounts[item.indexCaseId]) ? Math.sqrt(indexCaseCounts[item.indexCaseId]) * 4 + 5 : 5,
           group: 1
         }
       }
     );
     let sourceNodes = _.uniqBy(updates, 'source').map(item => {
-      return {
+        return {
           indexCaseId: item.source,
           title: _.find(indexCases, ic => item.source === ic.id)['representative'],
-          r: (indexCaseCounts[item.source]) ? Math.sqrt(indexCaseCounts[item.source]) * 3 + 5 : 5,
+          r: (indexCaseCounts[item.source]) ? Math.sqrt(indexCaseCounts[item.source]) * 4 + 5 : 5,
           group: 1
         }
       }
@@ -325,6 +330,42 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     graphData.links = links;
 
     return graphData;
+  }
+
+  wrap(text: any) {
+    text.each(function () {
+      let text:any = d3.select(this),
+        width = Math.max(this.__data__.r*2, 100),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        x = text.attr("x"),
+        dy = parseFloat(text.attr("dy")),
+        tspan: any = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+
+      while (word = words.pop()) {
+        line.push(word);
+        tspan.text(line.join(" "));
+        if (tspan.node().getComputedTextLength() > width) {
+          line.pop();
+          tspan.text(line.join(" "));
+          line = [word];
+          tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+        }
+      }
+
+      //vertical align center
+      if (lineNumber > 0) {
+        text.selectAll('tspan').each(function () {
+          let tspan = d3.select(this);
+          let dy = parseFloat(tspan.attr("dy"));
+          tspan.attr('dy', dy - (lineNumber) / 2 * lineHeight + "em");
+        });
+      }
+    });
   }
 
   gotoDetail(indexCaseId: number): void {

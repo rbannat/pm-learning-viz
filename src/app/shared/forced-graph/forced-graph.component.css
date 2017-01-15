@@ -17,8 +17,8 @@ app-forced-graph .nodes circle {
 
 app-forced-graph .labels text {
   pointer-events: none;
-  font: 8px sans-serif;
-  fill: white;
+  font: 10px sans-serif;
+  fill: #333333;
   text-anchor: middle;
 }
 
