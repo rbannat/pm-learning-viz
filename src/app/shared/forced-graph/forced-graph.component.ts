@@ -47,6 +47,8 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
   ngOnInit() {
 
+    this.initChart();
+
     this.getCustomers();
     this.getIndexCases();
 
@@ -67,7 +69,6 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         this.data = this.getGraphData(indexCases, updateCases);
         this.loading = false;
 
-        this.initChart();
         this.updateChart();
 
       })
