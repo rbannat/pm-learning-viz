@@ -6,20 +6,24 @@
 </md-toolbar>
 
 <div class="flex-container" fxLayout="row">
-  <md-card fxFlex="33%">
-    <md-card-title>
-      Total Number of Update Cases
-    </md-card-title>
-    <app-updates-barchart *ngIf="indexCase" [indexCaseId]=indexCase.id></app-updates-barchart>
-  </md-card>
+  <div fxFlex="33%">
+    <md-card>
+      <md-card-title>
+        Total Number of Update Cases
+      </md-card-title>
+      <app-updates-barchart *ngIf="indexCase" [indexCaseId]=indexCase.id></app-updates-barchart>
+    </md-card>
+  </div>
 
-  <md-card fxFlex="66%">
-    <md-card-title>
-      Related Index Cases
-    </md-card-title>
+  <div fxFlex="66%">
+    <md-card>
+      <md-card-title>
+        Related Index Cases
+      </md-card-title>
 
-    <app-forced-graph *ngIf="indexCase" [indexCaseId]=indexCase.id></app-forced-graph>
-  </md-card>
+      <app-forced-graph *ngIf="indexCase" [indexCaseId]=indexCase.id></app-forced-graph>
+    </md-card>
+  </div>
 </div>
 
 <div class="flex-container" fxLayout="row">
