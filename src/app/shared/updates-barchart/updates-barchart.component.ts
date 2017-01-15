@@ -21,8 +21,10 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
   private loading: Boolean = true;
   private data: any[];
   private updateCases: any;
+  private customers: any;
 
   private margin: any = {top: 10, bottom: 30, left: 30, right: 25};
+  private priority_order = ['NEW', 'UPDATE', 'DELETE'];
   private svg: any;
   private chart: any;
   private width: number;
@@ -37,6 +39,7 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
   ngOnInit() {
 
     this.getCustomers();
+    this.initChart();
 
     Promise.all<Customer[]>([
       this.customersPromise
@@ -44,26 +47,11 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
       .then(([customers]) => {
         // console.log('customers', customers);
 
+        this.customers = customers;
         this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
-
-        let priority_order = ['NEW', 'UPDATE', 'DELETE'];
-
-        this.data = d3.nest<any, number>()
-          .key(function (d) {
-            return d['updateType'];
-          }).sortKeys((a,b) => {
-            return priority_order.indexOf(a) - priority_order.indexOf(b);
-          })
-          .rollup(function (d) {
-            return d.length;
-          })
-          .entries(_.filter(this.updateCases, (o) => {
-            if (o['indexCaseId'] === this.indexCaseId || o['source'] === this.indexCaseId) return o
-          }));
 
         this.loading = false;
 
-        this.initChart();
         this.updateChart();
 
       })
@@ -102,11 +90,33 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
     // chart area
     this.chart = this.svg.append('g')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
+
+    // add axes
+    this.chart.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + this.height + ")");
+
+    this.chart.append("g")
+      .attr("class", "axis axis--y");
   }
 
   updateChart() {
-    let self = this;
 
+    // Data
+    this.data = d3.nest<any, number>()
+      .key(function (d) {
+        return d['updateType'];
+      }).sortKeys((a, b) => {
+        return this.priority_order.indexOf(a) - this.priority_order.indexOf(b);
+      })
+      .rollup(function (d) {
+        return d.length;
+      })
+      .entries(_.filter(this.updateCases, (o) => {
+        if (o['indexCaseId'] === this.indexCaseId || o['source'] === this.indexCaseId) return o
+      }));
+
+    // Scales
     this.x.domain(this.data.map(function (d) {
       return d.key;
     }));
@@ -114,18 +124,18 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
       return d.value;
     })]);
 
-    this.chart.append("g")
-      .attr("class", "axis axis--x")
-      .attr("transform", "translate(0," + this.height + ")")
-      .call(d3.axisBottom(this.x));
+    // Axes
+    this.chart.select(".axis--x")
+      .transition().duration(300).call(d3.axisBottom(this.x));
 
-    this.chart.append("g")
-      .attr("class", "axis axis--y")
-      .call(d3.axisLeft(this.y));
+    this.chart.select(".axis--y")
+      .transition().duration(300).call(d3.axisLeft(this.y));
 
-    this.chart.selectAll(".bar")
-      .data(this.data)
-      .enter().append("rect")
+    // Bars
+    let bars = this.chart.selectAll(".bar")
+      .data(this.data);
+    bars.exit().remove();
+    bars.enter().append("rect")
       .attr("class", "bar")
       .attr("x", d => {
         return this.x(d.key);
@@ -140,11 +150,39 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
       .attr("fill", d => {
         return this.z(d.key);
       });
+    bars.transition().duration(300)
+      .attr("x", d => {
+        return this.x(d.key);
+      })
+      .attr("y", d => {
+        return this.y(d.value);
+      })
+      .attr("width", this.x.bandwidth())
+      .attr("height", d => {
+        return this.height - this.y(d.value);
+      })
+      .attr("fill", d => {
+        return this.z(d.key);
+      });
 
-    // amount labels
-    this.chart.selectAll(".amount")
-      .data(this.data)
+    // Value labels
+    let values = this.chart.selectAll(".amount")
+      .data(this.data);
+    values.exit().remove();
+    values
       .enter().append("text")
+      .attr("x", d => {
+        return this.x(d.key) + this.x.bandwidth() / 2;
+      })
+      .attr("y", d => {
+        return this.y(d.value) + 10;
+      })
+      .attr("dy", ".35em")
+      .attr('class', 'amount')
+      .text(function (d) {
+        return d.value;
+      });
+    values.transition().duration(300)
       .attr("x", d => {
         return this.x(d.key) + this.x.bandwidth() / 2;
       })
