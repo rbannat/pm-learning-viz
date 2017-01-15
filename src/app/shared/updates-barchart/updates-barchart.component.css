@@ -10,7 +10,7 @@ app-updates-barchart .d3-barchart .axis line {
 
 app-updates-barchart .d3-barchart .axis--y text {
   fill: #999;
-  text-anchor: left;
+  text-anchor: end;
 }
 
 app-updates-barchart .d3-barchart text {

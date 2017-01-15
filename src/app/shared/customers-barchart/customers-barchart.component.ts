@@ -24,7 +24,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   private xScale: any;
   private barHeight = 20;
   private leftMargin = 100;
-  dataPromise: Promise<any>;
+  private customersPromise: Promise<any>;
   private data: any[];
   customers: any;
   updateCases: any;
@@ -37,12 +37,12 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.getCustomers();
 
-    this.dataPromise.then((response) => {
+    this.customersPromise.then((response) => {
 
       this.customers = response;
       this.updateCases = this.updateCaseService.getRealUpdateCases(response);
 
-      if (this.indexCaseId) {
+      if (this.indexCaseId !== undefined) {
         this.customers = _.filter(this.customers, customer => _.some(customer['icuElements'], icuElement => icuElement['indexCaseId'] === this.indexCaseId));
         this.updateCases = _.filter(this.updateCases, updateCase => updateCase['indexCaseId'] === this.indexCaseId || updateCase['source'] === this.indexCaseId);
       }
@@ -87,7 +87,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     this.height = this.barHeight * this.data.length + this.margin.top + this.margin.bottom;
 
-    d3.select(element).html('<p class="lead">Number of Updatecases</p>');
+    // d3.select(element).html('<p class="lead">Number of Updatecases</p>');
 
     let svg = d3.select(element).append('svg')
       .attr('width', element.offsetWidth)
@@ -170,7 +170,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   }
 
   getCustomers(): void {
-    this.dataPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.updateCaseService.getCustomers();
   }
 
   gotoDetail(customerId: number): void {

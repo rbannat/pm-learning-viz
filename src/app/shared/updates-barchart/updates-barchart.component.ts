@@ -56,7 +56,7 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
             return d.length;
           })
           .entries(_.filter(this.updateCases, (o) => {
-            if (o['indexCaseId'] === this.indexCaseId) return o
+            if (o['indexCaseId'] === this.indexCaseId || o['source'] === this.indexCaseId) return o
           }));
 
         this.loading = false;
