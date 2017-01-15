@@ -46,11 +46,13 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
 
         this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
 
+        let priority_order = ['NEW', 'UPDATE', 'DELETE'];
+
         this.data = d3.nest<any, number>()
           .key(function (d) {
             return d['updateType'];
-          }).sortKeys((d) => {
-            return (d === 'NEW') ? -1 : 1;
+          }).sortKeys((a,b) => {
+            return priority_order.indexOf(a) - priority_order.indexOf(b);
           })
           .rollup(function (d) {
             return d.length;
