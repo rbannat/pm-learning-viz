@@ -1,4 +1,4 @@
-import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation} from '@angular/core';
 import {UpdateCaseService} from 'app/shared/update-case.service';
 import * as d3 from 'd3';
 import * as d3ScaleChromatic from 'd3-scale-chromatic';
@@ -16,7 +16,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
   @ViewChild('chart') private chartContainer: ElementRef;
 
   public orderBy: any = 'custcat';
-  private margin: any = {top: 100, bottom: 10, left: 100, right: 75};
+  private margin: any = {top: 50, bottom: 10, left: 100, right: 75};
   private cellSize: number = 10;
   private legendElementWidth: number;
   private chart: any;
@@ -257,7 +257,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
   // Change ordering of cells
 
   sortbylabel(rORc, i, sortOrder) {
-    let t = this.svg.transition().duration(3000);
+    let t = this.svg.transition().duration(2000);
     let log2r: any[] = [];
     let sorted; // sorted is zero-based index
 
@@ -358,6 +358,15 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
 
   getMatrixData(): any[] {
     let matrixData = [];
+
+    // filter no updatecases
+    this.customers = _.filter(this.customers, customer => {
+      return _.some(this.updateCases, uc => uc['customerId'] == customer['id']);
+    });
+    this.categories = _.filter(this.categories, ic => {
+      return _.some(this.updateCases, uc => uc['indexCaseId'] === ic['id']);
+    });
+
     let customersLength = this.customers.length;
     let categoriesLength = this.categories.length;
     for (let i = 0; i < customersLength; i++) {
