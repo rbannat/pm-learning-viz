@@ -32,8 +32,11 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
+  private indexCases: IndexCase[];
+  private updateCases: any[];
   private loading: Boolean = true;
   private data: any;
+  private nodes:any;
 
   private margin: any = {top: 10, bottom: 10, left: 10, right: 10};
   private chart: any;
@@ -60,13 +63,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         // console.log('customers', customers);
         // console.log('indexCases', indexCases);
 
-        let updateCases = this.updateCaseService.getRealUpdateCases(customers);
+        this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
+        this.indexCases = indexCases;
 
-        if (this.indexCaseId !== undefined) {
-          updateCases = _.filter(updateCases, uc => uc.indexCaseId === this.indexCaseId || uc.source === this.indexCaseId);
-        }
-
-        this.data = this.getGraphData(indexCases, updateCases);
         this.loading = false;
 
         this.updateChart();
@@ -101,7 +100,8 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         return d['r'];
       }))
       .force("charge", d3.forceManyBody().strength(-500))
-      .force("center", d3.forceCenter(this.width / 2, this.height / 2));
+      .force("center", d3.forceCenter(this.width / 2, this.height / 2))
+      .alphaTarget(1);
 
     this.color = d3.scaleOrdinal(d3.schemeCategory20);
 
@@ -118,6 +118,21 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     this.chart = svg.append('g')
       .attr('class', 'graph')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
+
+    // marker container
+    this.chart.append("defs");
+
+    // paths container
+    this.chart.append("g")
+      .attr("class", "links");
+
+    // nodes container
+    this.chart.append("g")
+      .attr("class", "nodes");
+
+    // labels container
+    this.chart.append("g")
+      .attr("class", "labels");
   }
 
   zoomed() {
@@ -143,11 +158,20 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
   updateChart() {
 
-    let self = this;
+    let self = this,
+      updateCases = this.updateCases;
 
-    // Per-type markers, as they don't inherit styles.
-    this.chart.append("defs").selectAll("marker")
-      .data(["default"])
+    if (this.indexCaseId !== undefined) {
+      updateCases = _.filter(updateCases, uc => uc.indexCaseId === this.indexCaseId || uc.source === this.indexCaseId);
+    }
+
+    this.data = this.getGraphData(this.indexCases, updateCases);
+
+    // Markers
+    let markers = this.chart.select('defs').selectAll("marker")
+      .data(["default"]);
+    markers.exit().remove();
+    markers
       .enter().append("marker")
       .attr("id", function (d) {
         return d;
@@ -161,22 +185,16 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .append("path")
       .attr("d", "M0,-5L10,0L0,5")
       .attr("class", "arrowHead");
-
-    let path = this.chart.append("g")
-      .attr("class", "links")
-      .selectAll("path")
-      .data(this.data.links)
-      .enter().append("path")
-      .attr("class", "link")
-      .attr("marker-end", "url(#default)")
-      .attr("stroke-width", function (d) {
-        return Math.sqrt(d.value);
+    markers
+      .attr("id", function (d) {
+        return d;
       });
 
-    let node = this.chart.append("g")
-      .attr("class", "nodes")
-      .selectAll("circle")
-      .data(this.data.nodes)
+    // Nodes
+    let nodes = this.chart.select('.nodes').selectAll('circle')
+      .data(self.data.nodes);
+    nodes.exit().remove();
+    nodes
       .enter().append("circle")
       .attr("r", d => d.r)
       .attr("fill", d => this.color(d.group))
@@ -186,35 +204,61 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .call(d3.drag()
         .on("start", this.dragstarted.bind(this))
         .on("drag", this.dragged.bind(this))
-        .on("end", this.dragended.bind(this)));
-
-    node.append("title")
+        .on("end", this.dragended.bind(this)))
+      .append("title")
       .text(function (d) {
         return d.title;
       });
-
-    let labels = this.chart.append("g")
-      .attr("class", "labels")
-      .selectAll("text")
-      .data(this.data.nodes)
-      .enter().append("text")
+    nodes
+      .attr("r", d => d.r)
+      .attr("fill", d => this.color(d.group))
+      .on('click', d => {
+        this.gotoDetail(d.indexCaseId)
+      })
+      .select('title')
       .text(function (d) {
         return d.title;
-      })
+      });
+    nodes = this.chart.selectAll('circle');
+
+    // Paths
+    let paths = this.chart.select('.links').selectAll('path')
+      .data(this.data.links);
+    paths.exit().remove();
+    paths
+      .enter().append("path")
+      .attr("class", "link")
+      .attr("marker-end", "url(#default)")
+      .merge(paths)
+      .attr("stroke-width", function (d) {
+        return Math.sqrt(d.value);
+      });
+    paths =  this.chart.selectAll('.link');
+
+    let labels = this.chart.select('.labels').selectAll("text")
+      .data(this.data.nodes);
+    labels.exit().remove();
+    labels
+      .enter().append("text")
       .attr("dy", ".35")
-      .call(self.wrap);
+      .call(self.wrap)
+      .merge(labels)
+      .text(function (d) {
+        return d.title;
+      });
+    labels = this.chart.selectAll('.labels text');
 
+    this.simulation.on("tick", ticked);
     this.simulation
-      .nodes(this.data.nodes)
-      .on("tick", ticked);
-
+      .nodes(self.data.nodes);
     this.simulation.force("link")
-      .links(this.data.links);
+      .links(self.data.links);
+    this.simulation.alpha(1).restart();
 
     function ticked() {
-      path.attr("d", linkArc);
+      paths.attr("d", linkArc);
 
-      node
+      nodes
         .attr("cx", function (d) {
           return d.x;
         })
@@ -335,8 +379,8 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
   wrap(text: any) {
     text.each(function () {
-      let text:any = d3.select(this),
-        width = Math.max(this.__data__.r*2, 100),
+      let text: any = d3.select(this),
+        width = Math.max(this.__data__.r * 2, 100),
         words = text.text().split(/\s+/).reverse(),
         word,
         line = [],
