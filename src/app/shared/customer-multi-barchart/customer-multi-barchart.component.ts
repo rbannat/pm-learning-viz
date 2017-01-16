@@ -18,6 +18,9 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() customerId: any;
 
+  private orderBy: string = 'value';
+  private sortDesc: boolean = true;
+
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
   private loading: Boolean = true;
@@ -195,10 +198,10 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
       });
 
     this.chart.append("g")
-      .attr("class", "axis")
+      .attr("class", "axis y--axis")
       .call(d3.axisLeft(self.y0))
       .selectAll(".tick text")
-      .on('click', (d,i) => {
+      .on('click', (d, i) => {
         this.gotoDetail(parseInt(this.data[i].key))
       })
       .call(this.wrap, this.margin.left - 9);
@@ -255,7 +258,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
       .attr("x", this.width - 24);
 
     // sort
-    this.change();
+    this.change(this.orderBy);
   }
 
   wrap(text: any, width) {
@@ -292,34 +295,48 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
     });
   }
 
-  change() {
+  changeSortOrder() {
+    this.sortDesc = !this.sortDesc;
+    this.change(this.orderBy);
+  }
 
-    let self = this;
-    // Copy-on-write since tweens are evaluated after a delay.
-    var y0 = this.y0.domain(this.data.sort(
-      function (a, b) {
+  change(event) {
+    this.orderBy = event;
+
+    if (this.orderBy === 'key') {
+      this.data.sort((a, b) => {
+        let aName = a.label.toLowerCase();
+        let bName = b.label.toLowerCase();
+        if (this.sortDesc) {
+          return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+        } else {
+          return ((bName < aName) ? -1 : ((bName > aName) ? 1 : 0));
+        }
+      });
+    } else {
+      this.data.sort((a, b) => {
         return b.count - a.count;
-      })
-      .map(function (d) {
-        return d.key;
-      }))
-      .copy();
+      });
+      this.chart.selectAll(".bars")
+        .sort(function (a, b) {
+          return this.y0(a.key) - this.y0(b.key);
+        });
+    }
 
-    this.chart.selectAll(".bar")
-      .sort(function (a, b) {
-        return y0(a.key) - y0(b.key);
+    this.y0.domain(this.data.map(function (d) {
+      return d.label;
+    }));
+
+    this.chart.selectAll(".bars").transition().duration(300)
+      .attr("transform", d => {
+        return "translate(0," + this.y0(d.label) + ")";
       });
 
-    var transition = this.svg.transition().duration(750),
-      delay = function (d, i) {
-        return i * 50;
-      };
+    this.chart.select(".y--axis").transition().duration(300)
+      .call(d3.axisLeft(this.y0));
 
-    transition.selectAll(".bar")
-      .delay(delay)
-      .attr("x", function (d) {
-        return y0(d.key);
-      });
+    this.chart.select(".y--axis").selectAll(".tick text")
+      .call(this.wrap, this.margin.left - 9);
   }
 
   getCustomers(): void {
