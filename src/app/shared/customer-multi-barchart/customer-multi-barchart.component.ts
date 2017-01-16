@@ -241,13 +241,17 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
 
     d3.select(element).select('svg').attr('width', element.offsetWidth);
 
-    self.x.rangeRound([0, self.width]);
+    self.x.rangeRound([0, self.width - 100]);
 
     self.chart
       .selectAll(".bars rect")
       .attr("width", function (d) {
         return self.x(d.value);
       });
+
+    self.chart
+      .selectAll(".amount")
+      .attr("x", d => self.x(d.value) - 3);
 
     //update legend
     let legend = self.chart
@@ -257,8 +261,6 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
     legend.selectAll("text")
       .attr("x", this.width - 24);
 
-    // sort
-    this.change(this.orderBy);
   }
 
   wrap(text: any, width) {
@@ -303,39 +305,45 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
   change(event) {
     this.orderBy = event;
 
+    // sort data
     if (this.orderBy === 'key') {
       this.data.sort((a, b) => {
         let aName = a.label.toLowerCase();
         let bName = b.label.toLowerCase();
-        if (this.sortDesc) {
-          return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
-        } else {
-          return ((bName < aName) ? -1 : ((bName > aName) ? 1 : 0));
-        }
+        return ((bName < aName) ? -1 : ((bName > aName) ? 1 : 0));
       });
     } else {
-      this.data.sort((a, b) => {
-        return b.count - a.count;
+      this.data = _.sortBy(this.data, (el) => {
+        if (this.orderBy === 'value') {
+          return _.sumBy(el['values'], (o) => o['value']);
+        } else {
+          let element = _.find(el['values'], (o) => o['key'] === this.orderBy.toUpperCase());
+          return (element !== undefined) ? element['value'] : 0;
+        }
       });
-      this.chart.selectAll(".bars")
-        .sort(function (a, b) {
-          return this.y0(a.key) - this.y0(b.key);
-        });
     }
+    if (this.sortDesc) this.data.reverse();
 
+    // update scale
     this.y0.domain(this.data.map(function (d) {
       return d.label;
     }));
 
+    // update bargroups positions
     this.chart.selectAll(".bars").transition().duration(300)
       .attr("transform", d => {
         return "translate(0," + this.y0(d.label) + ")";
       });
 
-    this.chart.select(".y--axis").transition().duration(300)
+    // update axis and labels
+    this.chart.select(".y--axis")
       .call(d3.axisLeft(this.y0));
 
-    this.chart.select(".y--axis").selectAll(".tick text")
+    // update label wrapping
+    this.chart.selectAll(".tick text")
+      .on('click', (d, i) => {
+        this.gotoDetail(parseInt(this.data[i].key))
+      })
       .call(this.wrap, this.margin.left - 9);
   }
 
