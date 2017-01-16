@@ -10,12 +10,11 @@
   </div>
 
   <div *ngIf="!loading">
-    <label for="order">Order:</label>
-    <select id="order">
-      <option value="custcat">by customer name and category name</option>
-      <option value="cust">by customer name</option>
-      <option value="cat">by category name</option>
-      <option value="custom">by custom order</option>
-    </select>
+    <md-select id="order" [ngModel]="orderBy" (ngModelChange)="order($event)" placeholder="Order By">
+      <md-option value="custcat">Customer and Index Case</md-option>
+      <md-option value="cust">Customer</md-option>
+      <md-option value="cat">Index Case</md-option>
+      <md-option value="custom">Custom Order</md-option>
+    </md-select>
   </div>
 </div>

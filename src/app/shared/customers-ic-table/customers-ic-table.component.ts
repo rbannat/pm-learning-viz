@@ -14,6 +14,8 @@ import * as _ from 'lodash';
 export class CustomersIcTableComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
+
+  public orderBy: string = 'custcat';
   private margin: any = {top: 100, bottom: 10, left: 100, right: 75};
   private cellSize: number = 10;
   private legendElementWidth: number;
@@ -94,10 +96,6 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
       .attr("height", this.height + this.margin.top + this.margin.bottom)
       .append("g")
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-
-    d3.select("#order").on("change", function () {
-      self.order(d3.event.currentTarget.value);
-    });
   }
 
   updateChart() {
@@ -135,6 +133,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
         if(this.selectedLabel === i)self.rowSortOrder = !self.rowSortOrder;
         this.selectedLabel = 'r'+i;
         self.sortbylabel("r", i, self.rowSortOrder);
+        this.orderBy = 'custom';
         d3.select("#order").property('value' , 'custom');
       });
 
@@ -164,6 +163,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
         .on("click", function (d, i) {
           if(this.selectedLabel === i)self.colSortOrder = !self.colSortOrder;
           this.selectedLabel = 'c'+i;
+          this.orderBy = 'custom';
           d3.select("#order").property('value' , 'custom');
           self.sortbylabel("c", i, self.colSortOrder);
         })
@@ -305,6 +305,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
   }
 
   order(value) {
+    this.orderBy = value;
     if (value == "custcat") {
       let t = this.svg.transition().duration(3000);
       t.selectAll(".cell")
