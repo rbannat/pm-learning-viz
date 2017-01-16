@@ -15,7 +15,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
 
-  public orderBy: string = 'custcat';
+  public orderBy: any = 'custcat';
   private margin: any = {top: 100, bottom: 10, left: 100, right: 75};
   private cellSize: number = 10;
   private legendElementWidth: number;
