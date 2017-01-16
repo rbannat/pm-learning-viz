@@ -32,8 +32,9 @@
       <md-card-title>
         Update Cases by Customer
       </md-card-title>
-
-      <app-customers-barchart *ngIf="indexCase" [indexCaseId]=indexCase.id></app-customers-barchart>
+      <md-card-content>
+        <app-customers-barchart *ngIf="indexCase" [indexCaseId]=indexCase.id></app-customers-barchart>
+      </md-card-content>
     </md-card>
   </div>
 </div>

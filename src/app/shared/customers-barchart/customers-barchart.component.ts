@@ -17,11 +17,15 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   @Input() topX: number;
   @Input() indexCaseId: number;
 
-  private margin: any = {top: 10, bottom: 10, left: 10, right: 25};
+  private orderBy: string = 'value';
+  private sortDesc: boolean = true;
+
+  private margin: any = {top: 20, bottom: 10, left: 10, right: 25};
   private chart: any;
   private width: number;
   private height: number;
   private xScale: any;
+  private yScale: any;
   private barHeight = 20;
   private leftMargin = 100;
   private customersPromise: Promise<any>;
@@ -76,9 +80,11 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
       .attr('class', 'bars')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
-    // xScale
+    // scales
     this.xScale = d3.scaleLinear()
       .range([0, this.width - this.leftMargin]);
+
+    this.yScale = d3.scaleBand();
   }
 
   updateChart() {
@@ -118,6 +124,13 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
     let xDomain = [0, d3.max(this.data, d => d['updateCaseCount'])];
     this.xScale.domain(xDomain);
 
+    this.yScale
+      .domain(this.data.map(function (d) {
+        return d.customer;
+      }))
+      .rangeRound([0, this.barHeight * this.data.length])
+      .paddingInner(0.1);
+
     // Bars
     let update = this.chart.selectAll('.bar')
       .data(this.data);
@@ -130,7 +143,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
       .enter()
       .append('g')
       .attr('class', 'bar')
-      .attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + i * this.barHeight + ')');
+      .attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + this.yScale(d.customer) + ')');
     bars.append("text")
       .attr('class', 'label')
       .attr("x", function (d) {
@@ -157,19 +170,18 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
       });
 
     // UPDATE
+    update.attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + this.yScale(d.customer) + ')');
     update.select('.label')
       .text(function (d) {
         return d['customer'];
       });
     update.select('rect').transition().duration(300)
-      .attr("width", d => this.xScale(d['updateCaseCount']));
+      .attr("width", d => this.xScale(d['updateCaseCount']))
     update.select('.amount').transition().duration(300)
       .attr("x", d => this.xScale(d['updateCaseCount']) - 3)
       .text(function (d) {
         return (d['updateCaseCount'] < 5) ? '' : d['updateCaseCount'];
       });
-
-
   }
 
   resizeChart() {
@@ -194,6 +206,44 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
 
   gotoDetail(customerId: number): void {
     this.router.navigate(['/customers', customerId]);
+  }
+
+  changeSortOrder() {
+    this.sortDesc = !this.sortDesc;
+    this.change(this.orderBy);
+  }
+
+  change(event) {
+    this.orderBy = event;
+
+    if (this.orderBy === 'key') {
+      this.data.sort((a, b) => {
+        let aName = a.customer.toLowerCase();
+        let bName = b.customer.toLowerCase();
+        if (this.sortDesc) {
+          return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+        } else {
+          return ((bName < aName) ? -1 : ((bName > aName) ? 1 : 0));
+        }
+      });
+    } else {
+      this.data.sort((a, b) => {
+        if (this.sortDesc) {
+          return b["updateCaseCount"] - a["updateCaseCount"];
+        } else {
+          return a["updateCaseCount"] - b["updateCaseCount"];
+        }
+      });
+    }
+
+    this.yScale.domain(this.data.map(function (d) {
+      return d.customer;
+    }));
+
+    this.chart.selectAll(".bar")
+      .transition()
+      .duration(300)
+      .attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + this.yScale(d.customer) + ')');
   }
 
 }
