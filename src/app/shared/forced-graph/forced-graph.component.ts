@@ -29,6 +29,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() indexCaseId: number;
+  @Input() config: any = {
+    height: 500
+  };
 
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
@@ -90,7 +93,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
   initChart() {
     let element = this.chartContainer.nativeElement;
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
-    this.height = 500 + this.margin.top + this.margin.bottom;
+    this.height = this.config.height + this.margin.top + this.margin.bottom;
 
     this.simulation = d3.forceSimulation()
       .force("link", d3.forceLink().id(function (d) {
