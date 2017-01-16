@@ -1,1 +1,4 @@
+<div class="loading-overlay" *ngIf="loading">
+  <md-progress-bar mode="indeterminate" color="primary"></md-progress-bar>
+</div>
 <div class="d3-barchart" #chart (window:resize)="onResize($event)"></div>

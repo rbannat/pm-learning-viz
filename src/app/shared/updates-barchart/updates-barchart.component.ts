@@ -18,7 +18,7 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
   @Input() indexCaseId: number;
 
   private customersPromise: Promise<Customer[]>;
-  private loading: Boolean = true;
+  private loading: boolean = true;
   private data: any[];
   private updateCases: any;
   private customers: any;

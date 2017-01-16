@@ -1,16 +1,21 @@
+<div class="loading-overlay" *ngIf="loading">
+  <md-progress-bar mode="indeterminate" color="primary"></md-progress-bar>
+</div>
 
 <div class="d3-heatmap-table" #chart (window:resize)="onResize($event)">
   <div id="tooltip" class="hidden">
-   <p id="customer"></p>
-   <p id="category"></p>
-   <p id="count"></p>
+    <p id="customer"></p>
+    <p id="category"></p>
+    <p id="count"></p>
   </div>
 
-  <label for="order">Order:</label>
-  <select id="order">
-    <option value="custcat">by customer name and category name</option>
-    <option value="cust">by customer name</option>
-    <option value="cat">by category name</option>
-    <option value="custom">by custom order</option>
-  </select>
+  <div *ngIf="!loading">
+    <label for="order">Order:</label>
+    <select id="order">
+      <option value="custcat">by customer name and category name</option>
+      <option value="cust">by customer name</option>
+      <option value="cat">by category name</option>
+      <option value="custom">by custom order</option>
+    </select>
+  </div>
 </div>
