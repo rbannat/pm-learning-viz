@@ -235,6 +235,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       });
     paths =  this.chart.selectAll('.link');
 
+    // Labels
     let labels = this.chart.select('.labels').selectAll("text")
       .data(this.data.nodes);
     labels.exit().remove();
@@ -248,9 +249,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       });
     labels = this.chart.selectAll('.labels text');
 
-    this.simulation.on("tick", ticked);
     this.simulation
-      .nodes(self.data.nodes);
+      .nodes(self.data.nodes)
+      .on("tick", ticked);
     this.simulation.force("link")
       .links(self.data.links);
     this.simulation.alpha(1).restart();
