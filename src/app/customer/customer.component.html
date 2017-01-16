@@ -5,17 +5,12 @@
   <h4 class="md-title" *ngIf="customer">{{customer.customer}}</h4>
 </md-toolbar>
 <div class="flex-container" fxLayout="row">
-  <md-card fxFlex="50%">
-    <md-card-title>
-      Update Cases
-    </md-card-title>
-    <app-customer-multi-barchart *ngIf="customer" [customerId]='customer.id'></app-customer-multi-barchart>
-  </md-card>
-</div>
-<div class="flex-container" fxLayout="row">
-  <md-card fxFlex="100%">
-    <md-card-title>
-      Update Cases by Index Case
-    </md-card-title>
-  </md-card>
+  <div fxFlex="50%">
+    <md-card>
+      <md-card-title>
+        Update Cases
+      </md-card-title>
+      <app-customer-multi-barchart *ngIf="customer" [customerId]='customer.id'></app-customer-multi-barchart>
+    </md-card>
+  </div>
 </div>
