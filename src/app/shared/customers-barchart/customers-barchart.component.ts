@@ -26,9 +26,10 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   private leftMargin = 100;
   private customersPromise: Promise<any>;
   private data: any[];
-  customers: any;
-  updateCases: any;
-  loading: Boolean = true;
+  private customers: any;
+  private updateCases: any;
+  private loading: Boolean = true;
+  private svg: any;
 
   constructor(private updateCaseService: UpdateCaseService,
               private router: Router) {
@@ -36,38 +37,15 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.getCustomers();
+    this.initChart();
 
     this.customersPromise.then((response) => {
+
+      this.loading = false;
 
       this.customers = response;
       this.updateCases = this.updateCaseService.getRealUpdateCases(response);
 
-      if (this.indexCaseId !== undefined) {
-        this.customers = _.filter(this.customers, customer => _.some(customer['icuElements'], icuElement => icuElement['indexCaseId'] === this.indexCaseId));
-        this.updateCases = _.filter(this.updateCases, updateCase => updateCase['indexCaseId'] === this.indexCaseId || updateCase['source'] === this.indexCaseId);
-      }
-
-      this.data = _.map(this.customers, customer => {
-        return {
-          id: customer['id'],
-          customer: customer['customer'],
-          updateCaseCount: _.filter(this.updateCases, updateCase => {
-            return updateCase['customerId'] === customer['id']
-          }).length
-        }
-      });
-
-      this.data.sort(function (a, b) {
-        return b["updateCaseCount"] - a["updateCaseCount"];
-      });
-
-      if (this.topX) {
-        this.data = this.data.slice(0, this.topX);
-      }
-
-      this.loading = false;
-
-      this.initChart();
       this.updateChart();
     });
   }
@@ -85,47 +63,75 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   initChart() {
     let element = this.chartContainer.nativeElement;
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
-    this.height = this.barHeight * this.data.length + this.margin.top + this.margin.bottom;
+
 
     // d3.select(element).html('<p class="lead">Number of Updatecases</p>');
 
-    let svg = d3.select(element).append('svg')
-      .attr('width', element.offsetWidth)
-      .attr('height', this.height);
+    this.svg = d3.select(element).append('svg')
+      .attr('width', element.offsetWidth);
+
 
     // chart area
-    this.chart = svg.append('g')
+    this.chart = this.svg.append('g')
       .attr('class', 'bars')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
-    // xDomain
-    let xDomain = [0, d3.max(this.data, d => d['updateCaseCount'])];
     // xScale
     this.xScale = d3.scaleLinear()
-      .domain(xDomain)
       .range([0, this.width - this.leftMargin]);
   }
 
   updateChart() {
-    this.xScale.domain([0, d3.max(this.data, d => d['updateCaseCount'])]);
 
+    let customers = this.customers;
+    let updateCases = this.updateCases;
+
+    // Data
+    if (this.indexCaseId !== undefined) {
+      customers = _.filter(this.customers, customer => _.some(customer['icuElements'], icuElement => icuElement['indexCaseId'] === this.indexCaseId));
+      updateCases = _.filter(this.updateCases, updateCase => updateCase['indexCaseId'] === this.indexCaseId || updateCase['source'] === this.indexCaseId);
+    }
+
+    this.data = _.map(customers, customer => {
+      return {
+        id: customer['id'],
+        customer: customer['customer'],
+        updateCaseCount: _.filter(updateCases, updateCase => {
+          return updateCase['customerId'] === customer['id']
+        }).length
+      }
+    });
+
+    this.data.sort(function (a, b) {
+      return b["updateCaseCount"] - a["updateCaseCount"];
+    });
+
+    if (this.topX) {
+      this.data = this.data.slice(0, this.topX);
+    }
+
+    // Update SVG
+    this.height = this.barHeight * this.data.length + this.margin.top + this.margin.bottom;
+    this.svg.attr('height', this.height);
+
+    // Scales
+    let xDomain = [0, d3.max(this.data, d => d['updateCaseCount'])];
+    this.xScale.domain(xDomain);
+
+    // Bars
     let update = this.chart.selectAll('.bar')
       .data(this.data);
 
-    // remove exiting bars
+    // EXIT
     update.exit().remove();
 
-    // update existing bars
-    // ...
-
-    // add new bars
-    let bar = update
+    // ENTER
+    let bars = update
       .enter()
       .append('g')
       .attr('class', 'bar')
       .attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + i * this.barHeight + ')');
-
-    bar.append("text")
+    bars.append("text")
       .attr('class', 'label')
       .attr("x", function (d) {
         return -10;
@@ -138,12 +144,10 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
       .on('click', d => {
         this.gotoDetail(d.id)
       });
-
-    bar.append("rect")
+    bars.append("rect")
       .attr("width", d => this.xScale(d['updateCaseCount']))
       .attr("height", this.barHeight - 1);
-
-    bar.append("text")
+    bars.append("text")
       .attr("x", d => this.xScale(d['updateCaseCount']) - 3)
       .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
@@ -151,6 +155,21 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
       .text(function (d) {
         return (d['updateCaseCount'] < 5) ? '' : d['updateCaseCount'];
       });
+
+    // UPDATE
+    update.select('.label')
+      .text(function (d) {
+        return d['customer'];
+      });
+    update.select('rect').transition().duration(300)
+      .attr("width", d => this.xScale(d['updateCaseCount']));
+    update.select('.amount').transition().duration(300)
+      .attr("x", d => this.xScale(d['updateCaseCount']) - 3)
+      .text(function (d) {
+        return (d['updateCaseCount'] < 5) ? '' : d['updateCaseCount'];
+      });
+
+
   }
 
   resizeChart() {
