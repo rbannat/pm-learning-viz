@@ -17,6 +17,9 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() topX: number;
 
+  private orderBy: string = 'value';
+  private sortDesc: boolean = true;
+
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
   private loading: Boolean = true;
@@ -27,6 +30,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   private width: number;
   private height: number;
   private xScale: any;
+  private yScale: any;
   private barHeight = 40;
   private leftMargin = 150;
 
@@ -111,12 +115,21 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
     this.xScale = d3.scaleLinear()
       .domain(xDomain)
       .range([0, this.width - this.leftMargin]);
+
+    this.yScale = d3.scaleBand();
   }
 
   updateChart() {
 
     let self = this;
     this.xScale.domain([0, d3.max(this.data, d => d['updateCases'].length)]);
+
+    this.yScale
+      .domain(this.data.map(function (d) {
+        return d.id;
+      }))
+      .rangeRound([0, this.barHeight * this.data.length])
+      .paddingInner(0.1);
 
     let update = this.chart.selectAll('.bar')
       .data(this.data);
@@ -132,7 +145,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       .enter()
       .append('g')
       .attr('class', 'bar')
-      .attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + i * this.barHeight + ')');
+      .attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + this.yScale(d.id) + ')');
 
     bar.append("text")
       .attr('class', 'label')
@@ -214,6 +227,44 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       });
     }
     });
+  }
+
+  changeSortOrder() {
+    this.sortDesc = !this.sortDesc;
+    this.change(this.orderBy);
+  }
+
+  change(event) {
+    this.orderBy = event;
+
+    if (this.orderBy === 'key') {
+      this.data.sort((a, b) => {
+        let aName = a.label.toLowerCase();
+        let bName = b.label.toLowerCase();
+        if (this.sortDesc) {
+          return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+        } else {
+          return ((bName < aName) ? -1 : ((bName > aName) ? 1 : 0));
+        }
+      });
+    } else {
+      this.data.sort((a, b) => {
+        if (this.sortDesc) {
+          return b["updateCases"].length - a["updateCases"].length;
+        } else {
+          return a["updateCases"].length - b["updateCases"].length;
+        }
+      });
+    }
+
+    this.yScale.domain(this.data.map(function (d) {
+      return d.id;
+    }));
+
+    this.chart.selectAll(".bar")
+      .transition()
+      .duration(300)
+      .attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + this.yScale(d.id) + ')');
   }
 
   getCustomers(): void {

@@ -1,1 +1,12 @@
+<div *ngIf="!topX">
+  <md-select [ngModel]="orderBy" (ngModelChange)="change($event)" placeholder="Order By">
+    <md-option value="value">Count</md-option>
+    <md-option value="key">Name</md-option>
+  </md-select>
+
+  <button md-icon-button (click)="changeSortOrder()">
+    <md-icon *ngIf="sortDesc">arrow_drop_up</md-icon>
+    <md-icon *ngIf="!sortDesc">arrow_drop_down</md-icon>
+  </button>
+</div>
 <div class="d3-barchart" #chart (window:resize)="onResize($event)"></div>

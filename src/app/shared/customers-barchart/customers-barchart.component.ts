@@ -176,7 +176,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
         return d['customer'];
       });
     update.select('rect').transition().duration(300)
-      .attr("width", d => this.xScale(d['updateCaseCount']))
+      .attr("width", d => this.xScale(d['updateCaseCount']));
     update.select('.amount').transition().duration(300)
       .attr("x", d => this.xScale(d['updateCaseCount']) - 3)
       .text(function (d) {
