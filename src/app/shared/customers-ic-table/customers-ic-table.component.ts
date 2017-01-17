@@ -130,7 +130,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
         d3.select(this).classed("text-hover", false);
       })
       .on("click", function (d, i) {
-        if(this.selectedLabel === i)self.rowSortOrder = !self.rowSortOrder;
+        if(this.selectedLabel === 'r'+i)self.rowSortOrder = !self.rowSortOrder;
         this.selectedLabel = 'r'+i;
         self.sortbylabel("r", i, self.rowSortOrder);
         this.orderBy = 'custom';
@@ -161,7 +161,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
           d3.select(this).classed("text-hover", false);
         })
         .on("click", function (d, i) {
-          if(this.selectedLabel === i)self.colSortOrder = !self.colSortOrder;
+          if(this.selectedLabel === 'c'+i)self.colSortOrder = !self.colSortOrder;
           this.selectedLabel = 'c'+i;
           this.orderBy = 'custom';
           d3.select("#order").property('value' , 'custom');
