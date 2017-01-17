@@ -12,3 +12,23 @@ md-sidenav {
 md-card {
   margin: 10px;
 }
+
+.action-request {
+  background-color: #FFC107 !important; /*Amber*/
+}
+
+.complaint {
+  background-color: #E91E63 !important; /*Pink*/
+}
+
+.praise {
+  background-color: #2196F3 !important; /*Blue*/
+}
+
+.unknown {
+  background-color: #9E9E9E !important; /*Grey*/
+}
+
+.provide-info {
+  background-color: #03A9F4 !important; /*Light Blue*/
+}

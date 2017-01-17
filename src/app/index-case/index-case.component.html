@@ -3,6 +3,12 @@
     <md-icon>arrow_back</md-icon>
   </button>
   <h4 class="md-title" *ngIf="indexCase">{{indexCase.representative}}</h4>
+
+  <md-chip-list>
+    <md-chip *ngIf="indexCase" [ngClass]="actionTypeColor" selected="true">{{indexCase.type}}</md-chip>
+    <md-chip *ngIf="indexCase">{{indexCase.topic}}</md-chip>
+  </md-chip-list>
+
 </md-toolbar>
 
 <div class="flex-container" fxLayout="row">
