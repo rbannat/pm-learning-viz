@@ -214,6 +214,14 @@ export class CirclePackingComponent implements OnInit, OnChanges {
         .on("end", function (d) {
           if (d['parent'] !== focus) this.style.display = "none";
         });
+
+      transition.selectAll('circle')
+        .filter(function (d) {
+          return d['parent'] === focus && focus.depth === 2;
+        })
+        .style("pointer-events", function (d) {
+          return d['parent'] === focus ? 'all' : 'none';
+        });
     }
 
     function zoomTo(v) {

@@ -31,7 +31,7 @@ app-circle-packing .label {
 }
 
 app-circle-packing .label,
-app-circle-packing .node--root{
-/*app-circle-packing .node--leaf {*/
+app-circle-packing .node--root,
+app-circle-packing .node--leaf {
   pointer-events: none;
 }
