@@ -1,5 +1,8 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation} from '@angular/core';
 import {UpdateCaseService} from 'app/shared/update-case.service';
+import {ColorsService} from 'app/shared/colors.service';
+import {Customer} from 'app/customer';
+import {IndexCase} from 'app/index-case';
 import * as d3 from 'd3';
 import * as d3ScaleChromatic from 'd3-scale-chromatic';
 import * as _ from 'lodash';
@@ -9,11 +12,18 @@ import * as _ from 'lodash';
   encapsulation: ViewEncapsulation.None,
   templateUrl: './customers-ic-table.component.html',
   styleUrls: ['./customers-ic-table.component.css'],
-  providers: [UpdateCaseService]
+  providers: [UpdateCaseService, ColorsService]
 })
 export class CustomersIcTableComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
+
+  private customersPromise: Promise<any>;
+  private customers: Customer[];
+  private indexCasesPromise: Promise<any>;
+  private indexCases: IndexCase[];
+  private loading: boolean = true;
+  private actionTypeColor:string = 'unknown';
 
   public orderBy: any = 'custcat';
   private margin: any = {top: 50, bottom: 10, left: 100, right: 75};
@@ -25,27 +35,37 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
   private svg: any;
   private rowSortOrder: boolean;
   private colSortOrder: boolean;
-  private selectedLabel:any;
-  dataPromise: Promise<any>;
-  customers: any;
+  private selectedLabel: any;
+
   updateCases: any;
   categories: any;
   matrixData: any[];
   colors: string[];
   colorScale: any;
-  loading: Boolean = true;
 
-  constructor(private updateCaseService: UpdateCaseService) {
+  constructor(private updateCaseService: UpdateCaseService,
+              private colorsService: ColorsService) {
   }
 
   ngOnInit() {
     this.getCustomers();
+    this.getIndexCases();
 
-    this.dataPromise.then((response) => {
+    Promise.all<Customer[], IndexCase[]>([
+      this.customersPromise,
+      this.indexCasesPromise,
+    ]).then(([customers, indexCases]) => {
 
-      this.customers = response.sort(function (a, b) {
-        var nameA = a.customer.toUpperCase(); // ignore upper and lowercase
-        var nameB = b.customer.toUpperCase(); // ignore upper and lowercase
+      this.customers = customers.map(customer => {
+        let customerObj = customer;
+        customerObj.label = customer['customer'];
+        return customerObj;
+      });
+      this.indexCases = indexCases;
+
+      this.customers = this.customers.sort(function (a, b) {
+        let nameA = a.label.toUpperCase(); // ignore upper and lowercase
+        let nameB = b.label.toUpperCase(); // ignore upper and lowercase
         if (nameA < nameB) {
           return -1;
         }
@@ -56,8 +76,8 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
         // names must be equal
         return 0;
       });
-      this.updateCases = this.updateCaseService.getRealUpdateCases(response);
-      this.categories = this.updateCaseService.getCategories(response).sort((a, b) => a.id - b.id);
+      this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
+      this.categories = indexCases.sort((a, b) => a.id - b.id);
 
       this.matrixData = this.getMatrixData();
 
@@ -112,7 +132,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
       .enter()
       .append("text")
       .text(function (d) {
-        return d.customer;
+        return d.label;
       })
       .attr("x", 0)
       .attr("y", (d, i) => {
@@ -130,11 +150,11 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
         d3.select(this).classed("text-hover", false);
       })
       .on("click", function (d, i) {
-        if(this.selectedLabel === 'r'+i)self.rowSortOrder = !self.rowSortOrder;
-        this.selectedLabel = 'r'+i;
+        if (this.selectedLabel === 'r' + i) self.rowSortOrder = !self.rowSortOrder;
+        this.selectedLabel = 'r' + i;
         self.sortbylabel("r", i, self.rowSortOrder);
         this.orderBy = 'custom';
-        d3.select("#order").property('value' , 'custom');
+        d3.select("#order").property('value', 'custom');
       });
 
     let colLabels = this.svg.append("g")
@@ -161,10 +181,10 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
           d3.select(this).classed("text-hover", false);
         })
         .on("click", function (d, i) {
-          if(this.selectedLabel === 'c'+i)self.colSortOrder = !self.colSortOrder;
-          this.selectedLabel = 'c'+i;
+          if (this.selectedLabel === 'c' + i) self.colSortOrder = !self.colSortOrder;
+          this.selectedLabel = 'c' + i;
           this.orderBy = 'custom';
-          d3.select("#order").property('value' , 'custom');
+          d3.select("#order").property('value', 'custom');
           self.sortbylabel("c", i, self.colSortOrder);
         })
       ;
@@ -202,11 +222,25 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
             .style("left", (parseInt(d3.select(this).attr('x')) + self.margin.left + self.cellSize * 2) + "px")
             .style("top", (parseInt(d3.select(this).attr('y')) + self.margin.top + self.cellSize * 2) + "px");
 
+          self.actionTypeColor = self.colorsService.getColor(self.categories[d.col].type);
+
           tooltip.select("#customer")
-            .text("Customer: " + self.customers[d.row].customer);
+            .text("Customer: " + self.customers[d.row].label);
 
           tooltip.select("#category")
-            .text("Category: " + self.categories[d.col].id);
+            .text("Index Case: " + self.categories[d.col].representative);
+
+          tooltip.select("#action-type")
+            .text(self.categories[d.col].type);
+
+          tooltip.select("#topic")
+            .text(a => {
+              if (self.categories[d['col']].topic !== undefined) {
+                return "Topic: " + self.categories[d['col']].topic
+              } else {
+                return "Topic: " + 'No Topic';
+              }
+            });
 
           tooltip.select("#count")
             .text("Count:" + d.value);
@@ -353,7 +387,11 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
   }
 
   getCustomers(): void {
-    this.dataPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.updateCaseService.getCustomers();
+  }
+
+  getIndexCases(): void {
+    this.indexCasesPromise = this.updateCaseService.getIndexCases();
   }
 
   getMatrixData(): any[] {

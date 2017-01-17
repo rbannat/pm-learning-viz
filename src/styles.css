@@ -17,6 +17,10 @@ md-card {
   background-color: #FFC107 !important; /*Amber*/
 }
 
+.info-request {
+  background-color: #009688 !important; /*Teal*/
+}
+
 .complaint {
   background-color: #E91E63 !important; /*Pink*/
 }

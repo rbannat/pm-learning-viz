@@ -28,7 +28,6 @@ export class IndexCaseComponent implements OnInit {
       .subscribe(indexCase => {
         this.indexCase = indexCase;
         this.actionTypeColor = this.colorsService.getColor(this.indexCase['type']);
-        console.log(this.actionTypeColor);
       });
   }
 
