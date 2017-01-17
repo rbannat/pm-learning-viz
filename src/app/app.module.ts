@@ -19,6 +19,7 @@ import { CustomerComponent } from './customer/customer.component';
 import { CustomerMultiBarchartComponent } from './shared/customer-multi-barchart/customer-multi-barchart.component';
 import { IndexCaseComponent } from './index-case/index-case.component';
 import { UpdatesBarchartComponent } from './shared/updates-barchart/updates-barchart.component';
+import { CirclePackingComponent } from './shared/circle-packing/circle-packing.component';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { UpdatesBarchartComponent } from './shared/updates-barchart/updates-barc
     CustomerComponent,
     CustomerMultiBarchartComponent,
     IndexCaseComponent,
-    UpdatesBarchartComponent
+    UpdatesBarchartComponent,
+    CirclePackingComponent
   ],
   imports: [
     BrowserModule,

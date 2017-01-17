@@ -25,15 +25,19 @@
 </div>
 
 <div class="flex-container" fxLayout="row">
-  <md-card fxFlex="50%">
-    <md-card-title>
-      Latest Updates
-    </md-card-title>
-  </md-card>
-  <md-card fxFlex="50%">
-    <md-card-title>
-      All Update Cases
-    </md-card-title>
-    <p>My regular content. This will be moved into the proper DOM at runtime.</p>
-  </md-card>
+  <div fxFlex="50%">
+    <md-card>
+      <md-card-title>
+        Latest Updates
+      </md-card-title>
+    </md-card>
+  </div>
+  <div fxFlex="50%">
+    <md-card>
+      <md-card-title>
+        Update Cases by Topic/Action Type
+      </md-card-title>
+      <app-circle-packing></app-circle-packing>
+    </md-card>
+  </div>
 </div>

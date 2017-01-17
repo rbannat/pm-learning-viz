@@ -1,0 +1,12 @@
+app-circle-packing .nodes circle {
+  stroke: #fff;
+  stroke-width: 1px;
+  cursor: pointer;
+}
+
+app-circle-packing .labels text {
+  pointer-events: none;
+  font: 10px sans-serif;
+  fill: #333333;
+  text-anchor: middle;
+}
