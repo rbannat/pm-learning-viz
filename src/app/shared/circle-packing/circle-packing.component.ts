@@ -35,6 +35,11 @@ export class CirclePackingComponent implements OnInit, OnChanges {
   private diameter: number;
   private color: any;
   private pack: any;
+  private focus: any;
+  private nodes: any;
+  private view: any;
+  private node: any;
+  private circle: any;
 
   constructor(private updateCaseService: UpdateCaseService, private router: Router, private colorsService: ColorsService) {
   }
@@ -110,7 +115,7 @@ export class CirclePackingComponent implements OnInit, OnChanges {
       .attr("height", this.height + this.margin.top + this.margin.bottom);
     this.chart = this.svg
       .append("g")
-      .attr("transform", "translate(" + this.diameter / 2 + "," + this.diameter / 2 + ")");
+      .attr("transform", "translate(" + element.offsetWidth / 2 + "," + element.offsetWidth / 2 + ")");
 
     this.color = d3.scaleLinear<any>()
       .domain([-1, 5])
@@ -134,12 +139,12 @@ export class CirclePackingComponent implements OnInit, OnChanges {
         return b.value - a.value;
       });
 
-    let focus = this.data,
-      nodes = this.pack(this.data).descendants(),
-      view;
+    this.focus = this.data;
+    this.nodes = this.pack(this.data).descendants();
+    this.view;
 
-    let circle = this.chart.selectAll("circle")
-      .data(nodes)
+    this.circle = this.chart.selectAll("circle")
+      .data(this.nodes)
       .enter().append("circle")
       .attr("class", function (d) {
         return d['parent'] ? d.children ? "node" : "node node--leaf" : "node node--root";
@@ -152,16 +157,16 @@ export class CirclePackingComponent implements OnInit, OnChanges {
         }
       })
       .on("click", function (d) {
-        if(d.depth === 3){
+        if (d.depth === 3) {
           self.gotoDetail(d.data.id);
           d3.event.stopPropagation();
         } else {
-          if (focus !== d) zoom(d), d3.event.stopPropagation();
+          if (focus !== d) self.zoom(d), d3.event.stopPropagation();
         }
       });
 
     let text = this.chart.selectAll("text")
-      .data(nodes)
+      .data(this.nodes)
       .enter().append("text")
       .attr("class", "label")
       .style("fill-opacity", d => {
@@ -179,64 +184,66 @@ export class CirclePackingComponent implements OnInit, OnChanges {
         return d['parent'] === this.data ? "inline" : "none";
       });
 
-    let node = this.chart.selectAll("circle,text");
+    this.node = this.chart.selectAll("circle,text");
 
     this.svg
       .on("click", () => {
-        zoom(this.data);
+        this.zoom(this.data);
       });
 
-    zoomTo([this.data.x, this.data.y, this.data.r * 2 + this.margin.left]);
+    this.zoomTo([this.data.x, this.data.y, this.data.r * 2 + this.margin.left]);
+  }
 
-    function zoom(d) {
-      let focus0 = focus;
-      focus = d;
+  zoomTo(v) {
+    let self = this;
+    let k = self.diameter / v[2];
+    self.view = v;
+    self.node.attr("transform", function (d) {
+      return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")";
+    });
+    self.circle.attr("r", function (d) {
+      return d.r * k;
+    });
+  }
 
-      let transition: any = d3.transition(null)
-        .duration(d3.event.altKey ? 7500 : 750)
-        .tween("zoom", d => {
-          let i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + self.margin.left]);
-          return function (t) {
-            zoomTo(i(t));
-          };
-        });
-
-      transition.selectAll('text')
-        .filter(function (d) {
-          return d['parent'] === focus || this.style.display === "inline";
-        })
-        .style("fill-opacity", function (d) {
-          return d['parent'] === focus ? 1 : 0;
-        })
-        .on("start", function (d) {
-          if (d['parent'] === focus) this.style.display = "inline";
-        })
-        .on("end", function (d) {
-          if (d['parent'] !== focus) this.style.display = "none";
-        });
-
-      transition.selectAll('circle')
-        .filter(function (d) {
-          return d['parent'] === focus && focus.depth === 2;
-        })
-        .style("pointer-events", function (d) {
-          return d['parent'] === focus ? 'all' : 'none';
-        });
-    }
-
-    function zoomTo(v) {
-      let k = self.diameter / v[2];
-      view = v;
-      node.attr("transform", function (d) {
-        return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")";
+  zoom(d) {
+    let self = this;
+    let focus0 = self.focus;
+    self.focus = d;
+    let transition: any = d3.transition("")
+      .duration(d3.event.altKey ? 7500 : 750)
+      .tween("zoom", d => {
+        let i = d3.interpolateZoom(self.view, [self.focus.x, self.focus.y, self.focus.r * 2 + self.margin.left]);
+        return function (t) {
+          self.zoomTo(i(t));
+        };
       });
-      circle.attr("r", function (d) {
-        return d.r * k;
+
+    transition.selectAll('text')
+      .filter(function (d) {
+        return d['parent'] === self.focus || this.style.display === "inline";
+      })
+      .style("fill-opacity", function (d) {
+        return d['parent'] === self.focus ? 1 : 0;
+      })
+      .on("start", function (d) {
+        if (d['parent'] === self.focus) this.style.display = "inline";
+      })
+      .on("end", function (d) {
+        if (d['parent'] !== self.focus) this.style.display = "none";
       });
-    }
+
+    transition.selectAll('circle')
+      .filter(function (d) {
+        return d['parent'] === self.focus && self.focus.depth === 2;
+      })
+      .style("pointer-events", function (d) {
+        return d['parent'] === self.focus ? 'all' : 'none';
+      });
   }
 
   resizeChart() {
+    let self = this;
     let element = this.chartContainer.nativeElement;
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     this.diameter = this.width;
@@ -245,9 +252,11 @@ export class CirclePackingComponent implements OnInit, OnChanges {
       .attr('width', element.offsetWidth)
       .attr('height', element.offsetWidth);
 
-    this.pack
-      .size([this.diameter - this.margin.left, this.diameter - this.margin.right])
-      .padding(2);
+    this.chart
+      .attr("transform", "translate(" + element.offsetWidth / 2 + "," + element.offsetWidth / 2 + ")");
+
+    // self.zoom(self.data);
+    self.zoomTo([self.data.x, self.data.y, self.data.r * 2 + self.margin.left]);
   }
 
   wrap(text: any) {
