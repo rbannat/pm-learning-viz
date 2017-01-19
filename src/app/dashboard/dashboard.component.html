@@ -1,4 +1,38 @@
 <div class="flex-container" fxLayout="row">
+  <div fxFlex="25%">
+    <md-card>
+      <md-card-title>
+        Customers
+      </md-card-title>
+      <md-card-content *ngIf="customerCount">
+        <span class="pm-content-number"> {{customerCount}}</span>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <div fxFlex="25%">
+    <md-card>
+      <md-card-title>
+        Index Cases
+      </md-card-title>
+      <md-card-content *ngIf="indexCaseCount">
+        <span class="pm-content-number">{{indexCaseCount}}</span>
+      </md-card-content>
+    </md-card>
+  </div>
+  <div fxFlex="25%">
+    <md-card>
+      <md-card-title>
+        Update Cases
+      </md-card-title>
+      <md-card-content *ngIf="updateCaseCount">
+        <span class="pm-content-number">{{updateCaseCount}}</span>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>
+
+<div class="flex-container" fxLayout="row">
   <div fxFlex="50%">
     <md-card>
       <md-card-title>
@@ -37,10 +71,10 @@
     </md-card>
   </div>
   <!--<div fxFlex="50%">-->
-    <!--<md-card>-->
-      <!--<md-card-title>-->
-        <!--Latest Updates-->
-      <!--</md-card-title>-->
-    <!--</md-card>-->
+  <!--<md-card>-->
+  <!--<md-card-title>-->
+  <!--Latest Updates-->
+  <!--</md-card-title>-->
+  <!--</md-card>-->
   <!--</div>-->
 </div>
