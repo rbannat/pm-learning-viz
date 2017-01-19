@@ -14,7 +14,6 @@ export class UpdateCaseService {
 
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
-  private updateCases: any[];
 
   constructor(private http: Http) {
   }
@@ -59,24 +58,6 @@ export class UpdateCaseService {
 
   getIndexCase(id: number): Promise<IndexCase> {
     return this.getIndexCases().then(indexCases => _.find(indexCases, indexCase => id === indexCase['id']) as IndexCase);
-  }
-
-  /**
-   * Returns all existing categories.
-   * @param categories
-   * @returns {Array}
-   */
-  getCategories(customerData: any[]): any[] {
-
-    let categories = [];
-    for (let customer of customerData) {
-      for (let icu of customer.icuElements) {
-        if (!_.find(categories, ['id', icu.indexCaseId])) {
-          categories.push({id: icu.indexCaseId});
-        }
-      }
-    }
-    return categories;
   }
 
   /**
