@@ -4,6 +4,7 @@
       <md-card-title>
         Top Customers
       </md-card-title>
+      <md-card-subtitle>by Number of Update Cases</md-card-subtitle>
       <app-customers-barchart [topX]=10></app-customers-barchart>
       <md-card-actions>
         <button md-button routerLink="/customers" color="primary">All Customers</button>
@@ -16,6 +17,7 @@
       <md-card-title>
         Top Index Cases
       </md-card-title>
+      <md-card-subtitle>by Number of Update Cases</md-card-subtitle>
       <app-index-cases-barchart [topX]=5></app-index-cases-barchart>
       <md-card-actions>
         <button md-button routerLink="/index-cases" color="primary">All Index Cases</button>
@@ -28,8 +30,9 @@
   <div fxFlex="50%">
     <md-card>
       <md-card-title>
-        Update Cases by Topic/Action Type
+        Update Cases
       </md-card-title>
+      <md-card-subtitle>by Topic and Action Type</md-card-subtitle>
       <app-circle-packing></app-circle-packing>
     </md-card>
   </div>

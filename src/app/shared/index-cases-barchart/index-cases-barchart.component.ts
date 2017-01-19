@@ -98,7 +98,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     this.height = this.barHeight * this.data.length + this.margin.top + this.margin.bottom;
 
-    d3.select(element).html('<p class="lead">Number of Updatecases</p>');
+    // d3.select(element).html('<p class="lead">Number of Updatecases</p>');
 
     let svg = d3.select(element).append('svg')
       .attr('width', element.offsetWidth)

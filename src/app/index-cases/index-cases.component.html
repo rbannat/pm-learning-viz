@@ -1,9 +1,10 @@
 <div class="flex-container" fxLayout="row">
-  <div fxFlex="50%">
+  <div fxFlex="100%">
     <md-card>
       <md-card-title>
-        Update Cases
+        All Index Cases
       </md-card-title>
+      <md-card-subtitle>by Number of Update Cases</md-card-subtitle>
       <md-card-content>
         <app-index-cases-barchart></app-index-cases-barchart>
       </md-card-content>
@@ -16,7 +17,11 @@
       <md-card-title>
         Related Index Cases
       </md-card-title>
-      <app-forced-graph></app-forced-graph>
+      <md-card-content>
+        <app-forced-graph></app-forced-graph>
+        <p>The Area of circles displays the number of all Update Cases for each Index Case, whereas the thickness of the connecting arrows only shows the number of Update Cases with the type of "UPDATE".</p>
+      </md-card-content>
     </md-card>
+
   </div>
 </div>

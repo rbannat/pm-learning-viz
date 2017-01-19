@@ -8,17 +8,22 @@
   <div fxFlex="50%">
     <md-card>
       <md-card-title>
-        Update Cases
+        Number of Update Cases
       </md-card-title>
+      <md-card-subtitle>by Index Case</md-card-subtitle>
       <app-customer-multi-barchart *ngIf="customer" [customerId]='customer.id'></app-customer-multi-barchart>
     </md-card>
   </div>
   <div fxFlex="50%">
     <md-card>
       <md-card-title>
-        Update Case Relations
+        Related Index Cases
       </md-card-title>
-      <app-forced-graph *ngIf="customer" [customerId]='customer.id'></app-forced-graph>
+      <md-card-content>
+        <app-forced-graph *ngIf="customer" [customerId]='customer.id'></app-forced-graph>
+        <p>The Area of circles displays the number of Update Cases related to the current <strong>Customer</strong>, whereas the thickness of the
+          connecting arrows only shows the number of Update Cases with the type of <em>UPDATE</em>.</p>
+      </md-card-content>
     </md-card>
   </div>
 </div>

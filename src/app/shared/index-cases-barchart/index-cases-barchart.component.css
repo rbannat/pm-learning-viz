@@ -1,6 +1,6 @@
 app-index-cases-barchart .d3-barchart {
   overflow: hidden;
-  max-height: 450px;
+  max-height: 350px;
   overflow-y: auto;
 }
 
