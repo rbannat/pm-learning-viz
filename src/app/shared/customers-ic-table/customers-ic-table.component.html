@@ -12,12 +12,12 @@
   </div>
 
   <div *ngIf="!loading">
-    <select id="order" [ngModel]="orderBy" (ngModelChange)="order($event)">
-      <option [value]="'custcat'">Customer and Index Case</option>
-      <option [value]="'cust'">Customer</option>
-      <option [value]="'cat'">Index Case</option>
-      <option [value]="'custom'">Custom Order</option>
-    </select>
+    <md-select id="order" [ngModel]="orderBy" (ngModelChange)="order($event)" placeholder="Order By">
+      <md-option [value]="'custcat'">Customer and Index Case</md-option>
+      <md-option [value]="'cust'">Customer</md-option>
+      <md-option [value]="'cat'">Index Case</md-option>
+      <md-option [value]="'custom'">Custom Order</md-option>
+    </md-select>
 
     <!--<md-select id="order" [ngModel]="orderBy" (ngModelChange)="order($event)" placeholder="Order By">-->
       <!--<md-option value="custcat">Customer and Index Case</md-option>-->

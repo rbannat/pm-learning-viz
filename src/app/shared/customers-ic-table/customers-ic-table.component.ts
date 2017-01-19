@@ -26,7 +26,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
 
   public orderBy: any = 'custcat';
   private margin: any = {top: 100, bottom: 10, left: 150, right: 75};
-  private cellSize: number = 15;
+  private cellSize: number = 18;
   private legendElementWidth: number;
   private chart: any;
   private width: number;

@@ -1,5 +1,5 @@
 app-customers-ic-table .d3-heatmap-table {
-  overflow-x: auto;
+  overflow: auto;
   position: relative;
   max-height: 500px;
 }
@@ -26,12 +26,12 @@ app-customers-ic-table rect.cell-border {
 }
 
 app-customers-ic-table rect.cell-selected {
-  stroke: rgb(51, 102, 153);
+  stroke: #2196F3;
   stroke-width: 0.5px;
 }
 
 app-customers-ic-table rect.cell-hover {
-  stroke: #F00;
+  stroke: #F44336;
   stroke-width: 0.3px;
 }
 
@@ -42,15 +42,15 @@ app-customers-ic-table text.mono {
 }
 
 app-customers-ic-table text.text-selected {
-  fill: #000;
+  fill: #333;
 }
 
 app-customers-ic-table text.text-highlight {
-  fill: #c00;
+  fill: #F44336;
 }
 
 app-customers-ic-table text.text-hover {
-  fill: #00C;
+  fill: #2196F3;
   cursor: pointer;
 }
 
