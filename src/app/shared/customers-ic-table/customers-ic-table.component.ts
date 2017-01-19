@@ -36,11 +36,11 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
   private colSortOrder: boolean;
   private selectedLabel: any;
 
-  updateCases: any;
-  categories: any;
-  matrixData: any[];
-  colors: string[];
-  colorScale: any;
+  private updateCases: any;
+  private categories: any;
+  private matrixData: any[];
+  private colors: string[];
+  private colorScale: any;
 
   constructor(private updateCaseService: UpdateCaseService,
               private colorsService: ColorsService) {
@@ -219,7 +219,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges {
           //Update the tooltip position and value
           let tooltip = d3.select("#tooltip")
             .style("left", (parseInt(d3.select(this).attr('x')) + self.margin.left + self.cellSize * 2) + "px")
-            .style("top", (parseInt(d3.select(this).attr('y')) + self.margin.top + self.cellSize * 2) + "px");
+            .style("bottom", (self.height - (parseInt(d3.select(this).attr('y')))) + "px");
 
           self.actionTypeColor = self.colorsService.getColor(self.categories[d.col].type);
 
