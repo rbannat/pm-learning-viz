@@ -21,6 +21,9 @@ import { IndexCaseComponent } from './index-case/index-case.component';
 import { UpdatesBarchartComponent } from './shared/updates-barchart/updates-barchart.component';
 import { CirclePackingComponent } from './shared/circle-packing/circle-packing.component';
 
+import { UpdateCaseService } from './shared/update-case.service';
+import { ColorsService } from './shared/colors.service';
+
 
 @NgModule({
   declarations: [
@@ -47,7 +50,7 @@ import { CirclePackingComponent } from './shared/circle-packing/circle-packing.c
     MaterialModule.forRoot(),
     FlexLayoutModule.forRoot()
   ],
-  providers: [],
+  providers: [UpdateCaseService, ColorsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

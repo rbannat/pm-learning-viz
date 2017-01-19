@@ -22,8 +22,7 @@ import * as _ from 'lodash';
   selector: 'app-forced-graph',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './forced-graph.component.html',
-  styleUrls: ['./forced-graph.component.css'],
-  providers: [UpdateCaseService]
+  styleUrls: ['./forced-graph.component.css']
 })
 export class ForcedGraphComponent implements OnInit, OnChanges {
 

@@ -8,8 +8,7 @@ import {ColorsService} from "../shared/colors.service";
 @Component({
   selector: 'app-index-case',
   templateUrl: './index-case.component.html',
-  styleUrls: ['./index-case.component.css'],
-  providers: [ColorsService]
+  styleUrls: ['./index-case.component.css']
 })
 export class IndexCaseComponent implements OnInit {
 

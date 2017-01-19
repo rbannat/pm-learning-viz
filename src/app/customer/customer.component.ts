@@ -7,8 +7,7 @@ import 'rxjs/add/operator/switchMap';
 @Component({
   selector: 'app-customer',
   templateUrl: './customer.component.html',
-  styleUrls: ['./customer.component.css'],
-  providers: [UpdateCaseService]
+  styleUrls: ['./customer.component.css']
 })
 
 

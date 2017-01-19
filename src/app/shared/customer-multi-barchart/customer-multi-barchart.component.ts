@@ -11,8 +11,7 @@ import * as _ from 'lodash';
   selector: 'app-customer-multi-barchart',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './customer-multi-barchart.component.html',
-  styleUrls: ['./customer-multi-barchart.component.css'],
-  providers: [UpdateCaseService]
+  styleUrls: ['./customer-multi-barchart.component.css']
 })
 export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
   @ViewChild('chart') private chartContainer: ElementRef;

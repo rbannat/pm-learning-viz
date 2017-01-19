@@ -52,6 +52,6 @@ const appRoutes: Routes = [
 @NgModule({
   imports: [ RouterModule.forRoot(appRoutes) ],
   exports: [ RouterModule ],
-  providers: [CustomerResolver, IndexCaseResolver, UpdateCaseService]
+  providers: [CustomerResolver, IndexCaseResolver]
 })
 export class AppRoutingModule { }

@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Headers, Http} from '@angular/http';
-import { Customer } from '../customer';
-import { IndexCase } from '../index-case';
+import {Customer} from '../customer';
+import {IndexCase} from '../index-case';
 
 import 'rxjs/add/operator/toPromise';
 import * as _ from 'lodash';
@@ -12,36 +12,44 @@ export class UpdateCaseService {
   private customersUrl = 'assets/customers.json'; // customers with updatecases
   private indexCasesUrl = 'assets/index-cases.json'; // indexcases
 
+  private customersPromise: Promise<Customer[]>;
+  private indexCasesPromise: Promise<IndexCase[]>;
+  private updateCases: any[];
+
   constructor(private http: Http) {
   }
 
   getCustomers(): Promise<Customer[]> {
-    return this.http.get(this.customersUrl)
-      .toPromise()
-      .then(response => response.json() as Customer[])
-      .catch(this.handleError);
+    if (!this.customersPromise) {
+      this.customersPromise = this.http.get(this.customersUrl)
+        .toPromise()
+        .then(response => response.json() as Customer[])
+        .catch(this.handleError);
+    }
+    return this.customersPromise;
   }
 
   getIndexCases(): Promise<IndexCase[]> {
+    if (!this.indexCasesPromise) {
+      let unknownCase = {
+        id: 0,
+        type: 'UNKNOWN',
+        representative: 'Andere Frage',
+        industry: 'GENERAL'
+      };
+      this.indexCasesPromise = this.http.get(this.indexCasesUrl)
+        .toPromise()
+        .then(response => {
 
-    let unknownCase = {
-      id: 0,
-      type: 'UNKNOWN',
-      representative: 'Andere Frage',
-      industry: 'GENERAL'
-    };
+          // add special case
+          let data = response.json();
+          data.push(unknownCase);
 
-    return this.http.get(this.indexCasesUrl)
-      .toPromise()
-      .then(response => {
-
-        // add special case
-        let data = response.json();
-        data.push(unknownCase);
-
-        return data as IndexCase[]
-      })
-      .catch(this.handleError);
+          return data as IndexCase[]
+        })
+        .catch(this.handleError);
+    }
+    return this.indexCasesPromise;
   }
 
   getCustomer(id: number): Promise<Customer> {

@@ -8,8 +8,7 @@ import * as _ from 'lodash';
   selector: 'app-customers-barchart',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './customers-barchart.component.html',
-  styleUrls: ['./customers-barchart.component.css'],
-  providers: [UpdateCaseService]
+  styleUrls: ['./customers-barchart.component.css']
 })
 export class CustomersBarchartComponent implements OnInit, OnChanges {
 

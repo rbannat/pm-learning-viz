@@ -10,8 +10,7 @@ import * as _ from 'lodash';
   selector: 'app-updates-barchart',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './updates-barchart.component.html',
-  styleUrls: ['./updates-barchart.component.css'],
-  providers: [UpdateCaseService]
+  styleUrls: ['./updates-barchart.component.css']
 })
 export class UpdatesBarchartComponent implements OnInit, OnChanges {
   @ViewChild('chart') private chartContainer: ElementRef;

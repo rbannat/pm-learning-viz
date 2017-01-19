@@ -11,8 +11,7 @@ import * as _ from 'lodash';
   selector: 'app-customers-ic-table',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './customers-ic-table.component.html',
-  styleUrls: ['./customers-ic-table.component.css'],
-  providers: [UpdateCaseService, ColorsService]
+  styleUrls: ['./customers-ic-table.component.css']
 })
 export class CustomersIcTableComponent implements OnInit, OnChanges {
 

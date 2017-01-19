@@ -9,8 +9,7 @@ import * as d3 from 'd3';
   selector: 'app-index-cases-barchart',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './index-cases-barchart.component.html',
-  styleUrls: ['./index-cases-barchart.component.css'],
-  providers: [UpdateCaseService]
+  styleUrls: ['./index-cases-barchart.component.css']
 })
 export class IndexCasesBarchartComponent implements OnInit, OnChanges {
 

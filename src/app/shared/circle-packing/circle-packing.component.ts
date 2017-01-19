@@ -11,8 +11,7 @@ import * as _ from 'lodash';
   selector: 'app-circle-packing',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './circle-packing.component.html',
-  styleUrls: ['./circle-packing.component.css'],
-  providers: [UpdateCaseService, ColorsService]
+  styleUrls: ['./circle-packing.component.css']
 })
 export class CirclePackingComponent implements OnInit, OnChanges {
 

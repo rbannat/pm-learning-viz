@@ -26,5 +26,7 @@ export class AppComponent {
         this.title = this.getDeepestTitle(this.router.routerState.snapshot.root);
       }
     });
+
+
   }
 }
