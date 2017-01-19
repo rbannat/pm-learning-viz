@@ -1,0 +1,7 @@
+<md-list dense *ngIf="indexCases.length">
+  <md-list-item *ngFor="let ic of indexCases">
+    <h3 md-line> {{ic.representative}}</h3>
+    <p md-line> {{ic.customer}}, {{ic.last_modified | date:'medium'}} </p>
+  </md-list-item>
+</md-list>
+<p *ngIf="!indexCases.length">No Index Cases to show ...</p>

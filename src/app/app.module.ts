@@ -23,6 +23,7 @@ import { CirclePackingComponent } from './shared/circle-packing/circle-packing.c
 
 import { UpdateCaseService } from './shared/update-case.service';
 import { ColorsService } from './shared/colors.service';
+import { IndexCasesListComponent } from './shared/index-cases-list/index-cases-list.component';
 
 
 @NgModule({
@@ -40,7 +41,8 @@ import { ColorsService } from './shared/colors.service';
     CustomerMultiBarchartComponent,
     IndexCaseComponent,
     UpdatesBarchartComponent,
-    CirclePackingComponent
+    CirclePackingComponent,
+    IndexCasesListComponent
   ],
   imports: [
     BrowserModule,

@@ -4,6 +4,7 @@
   </button>
   <h4 class="md-title" *ngIf="customer">{{customer.customer}}</h4>
 </md-toolbar>
+
 <div class="flex-container" fxLayout="row">
   <div fxFlex="50%">
     <md-card>
@@ -12,6 +13,14 @@
       </md-card-title>
       <md-card-subtitle>by Index Case</md-card-subtitle>
       <app-customer-multi-barchart *ngIf="customer" [customerId]='customer.id'></app-customer-multi-barchart>
+    </md-card>
+    <md-card>
+      <md-card-title>
+        Created Index Cases
+      </md-card-title>
+      <md-card-content>
+        <app-index-cases-list *ngIf="customer" [customer]='customer.customer'></app-index-cases-list>
+      </md-card-content>
     </md-card>
   </div>
   <div fxFlex="50%">
