@@ -1,6 +1,7 @@
 app-customers-ic-table .d3-heatmap-table {
   overflow-x: auto;
   position: relative;
+  max-height: 500px;
 }
 
 /* disable text selection */
