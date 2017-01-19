@@ -29,6 +29,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() indexCaseId: number;
+  @Input() customerId: number;
   @Input() config: any = {
     height: 500
   };
@@ -166,7 +167,10 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
     if (this.indexCaseId !== undefined) {
       updateCases = _.filter(updateCases, uc => uc.indexCaseId === this.indexCaseId || uc.source === this.indexCaseId);
+    } else if(this.customerId !== undefined){
+      updateCases = _.filter(updateCases, uc => uc.customerId === this.customerId);
     }
+
 
     this.data = this.getGraphData(this.indexCases, updateCases);
 

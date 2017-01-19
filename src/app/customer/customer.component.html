@@ -13,4 +13,12 @@
       <app-customer-multi-barchart *ngIf="customer" [customerId]='customer.id'></app-customer-multi-barchart>
     </md-card>
   </div>
+  <div fxFlex="50%">
+    <md-card>
+      <md-card-title>
+        Update Case Relations
+      </md-card-title>
+      <app-forced-graph *ngIf="customer" [customerId]='customer.id'></app-forced-graph>
+    </md-card>
+  </div>
 </div>
