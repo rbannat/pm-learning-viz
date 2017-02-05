@@ -1,8 +1,8 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation} from '@angular/core';
-import {UpdateCaseService} from 'app/shared/update-case.service';
-import {ColorsService} from 'app/shared/colors.service';
-import {Customer} from 'app/customer';
-import {IndexCase} from 'app/index-case';
+import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {ColorsService} from 'app/shared/services/colors.service';
+import {Customer} from '../../../customer';
+import {IndexCase} from '../../../index-case';
 import * as d3 from 'd3';
 import * as d3ScaleChromatic from 'd3-scale-chromatic';
 import * as _ from 'lodash';

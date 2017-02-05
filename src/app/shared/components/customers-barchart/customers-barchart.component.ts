@@ -1,6 +1,6 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
-import {UpdateCaseService} from 'app/shared/update-case.service';
+import {UpdateCaseService} from 'app/shared/services/update-case.service';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 

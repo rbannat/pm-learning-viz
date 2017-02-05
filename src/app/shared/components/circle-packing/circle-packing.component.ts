@@ -1,9 +1,9 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
-import {UpdateCaseService} from 'app/shared/update-case.service';
-import {ColorsService} from 'app/shared/colors.service';
-import {Customer} from 'app/customer';
-import {IndexCase} from 'app/index-case';
+import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {ColorsService} from 'app/shared/services/colors.service';
+import {Customer} from '../../../customer';
+import {IndexCase} from '../../../index-case';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
@@ -26,6 +26,7 @@ export class CirclePackingComponent implements OnInit, OnChanges {
   private loading: Boolean = true;
   private data: any;
 
+  // d3 chart configuration
   private svg: any;
   private margin: any = {top: 10, bottom: 10, left: 10, right: 10};
   private chart: any;

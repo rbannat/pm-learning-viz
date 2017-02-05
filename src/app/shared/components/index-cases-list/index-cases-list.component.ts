@@ -1,6 +1,6 @@
 import {Component, OnInit, Input} from '@angular/core';
-import {UpdateCaseService} from 'app/shared/update-case.service';
-import {IndexCase} from 'app/index-case';
+import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {IndexCase} from '../../../index-case';
 
 @Component({
   selector: 'app-index-cases-list',

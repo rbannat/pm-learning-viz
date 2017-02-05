@@ -6,9 +6,8 @@ import { CustomerComponent }   from './customer/customer.component';
 import { IndexCasesComponent }   from './index-cases/index-cases.component';
 import { IndexCaseComponent }   from './index-case/index-case.component';
 import { PageNotFoundComponent }   from './page-not-found/page-not-found.component';
-import { CustomerResolver }   from './shared/customer-resolver.service';
-import { IndexCaseResolver }   from './shared/index-case-resolver.service';
-import {UpdateCaseService} from "./shared/update-case.service";
+import { CustomerResolver }   from './shared/services/customer-resolver.service';
+import { IndexCaseResolver }   from './shared/services/index-case-resolver.service';
 
 const appRoutes: Routes = [
   {

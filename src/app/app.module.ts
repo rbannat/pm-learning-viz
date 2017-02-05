@@ -9,21 +9,21 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { CustomersBarchartComponent } from './shared/customers-barchart/customers-barchart.component';
-import { ForcedGraphComponent } from './shared/forced-graph/forced-graph.component';
+import { CustomersBarchartComponent } from './shared/components/customers-barchart/customers-barchart.component';
+import { ForcedGraphComponent } from './shared/components/forced-graph/forced-graph.component';
 import { CustomersComponent } from './customers/customers.component';
 import { IndexCasesComponent } from './index-cases/index-cases.component';
-import { IndexCasesBarchartComponent } from './shared/index-cases-barchart/index-cases-barchart.component';
-import { CustomersIcTableComponent } from './shared/customers-ic-table/customers-ic-table.component';
+import { IndexCasesBarchartComponent } from './shared/components/index-cases-barchart/index-cases-barchart.component';
+import { CustomersIcTableComponent } from './shared/components/customers-ic-table/customers-ic-table.component';
 import { CustomerComponent } from './customer/customer.component';
-import { CustomerMultiBarchartComponent } from './shared/customer-multi-barchart/customer-multi-barchart.component';
+import { CustomerMultiBarchartComponent } from './shared/components/customer-multi-barchart/customer-multi-barchart.component';
 import { IndexCaseComponent } from './index-case/index-case.component';
-import { UpdatesBarchartComponent } from './shared/updates-barchart/updates-barchart.component';
-import { CirclePackingComponent } from './shared/circle-packing/circle-packing.component';
+import { UpdatesBarchartComponent } from './shared/components/updates-barchart/updates-barchart.component';
+import { CirclePackingComponent } from './shared/components/circle-packing/circle-packing.component';
 
-import { UpdateCaseService } from './shared/update-case.service';
-import { ColorsService } from './shared/colors.service';
-import { IndexCasesListComponent } from './shared/index-cases-list/index-cases-list.component';
+import { UpdateCaseService } from './shared/services/update-case.service';
+import { ColorsService } from './shared/services/colors.service';
+import { IndexCasesListComponent } from './shared/components/index-cases-list/index-cases-list.component';
 
 
 @NgModule({

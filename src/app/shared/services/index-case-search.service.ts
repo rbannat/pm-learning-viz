@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import {Http, Response} from '@angular/http';
 import { Observable } from 'rxjs';
-import { Customer } from '../customer';
-import { IndexCase } from '../index-case';
+import { Customer } from '../../customer';
+import { IndexCase } from '../../index-case';
 
 @Injectable()
 export class IndexCaseSearchService {

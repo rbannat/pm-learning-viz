@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Headers, Http} from '@angular/http';
-import {Customer} from '../customer';
-import {IndexCase} from '../index-case';
+import {Customer} from '../../customer';
+import {IndexCase} from '../../index-case';
 
 import 'rxjs/add/operator/toPromise';
 import * as _ from 'lodash';

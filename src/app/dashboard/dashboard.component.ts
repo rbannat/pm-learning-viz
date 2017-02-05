@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import {UpdateCaseService} from 'app/shared/update-case.service';
+import {UpdateCaseService} from '../shared/services/update-case.service';
 import {Customer} from 'app/customer';
 import {IndexCase} from 'app/index-case';
 
