@@ -102,7 +102,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .force("collide", d3.forceCollide(function (d) {
         return d['r'];
       }))
-      .force("charge", d3.forceManyBody().strength(-300))
+      .force("charge", d3.forceManyBody().strength(-400))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2));
 
     this.color = d3.scaleOrdinal(d3.schemeCategory20);
