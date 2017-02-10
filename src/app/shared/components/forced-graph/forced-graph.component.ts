@@ -39,7 +39,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
   private updateCases: any[];
   private loading: Boolean = true;
   private data: any;
-  private nodes:any;
+  private nodes: any;
 
   private margin: any = {top: 10, bottom: 10, left: 10, right: 10};
   private chart: any;
@@ -166,7 +166,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
 
     if (this.indexCaseId !== undefined) {
       updateCases = _.filter(updateCases, uc => uc.indexCaseId === this.indexCaseId || uc.source === this.indexCaseId);
-    } else if(this.customerId !== undefined){
+    } else if (this.customerId !== undefined) {
       updateCases = _.filter(updateCases, uc => uc.customerId === this.customerId);
     }
 
@@ -239,7 +239,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .attr("stroke-width", function (d) {
         return Math.sqrt(d.value);
       });
-    paths =  this.chart.selectAll('.link');
+    paths = this.chart.selectAll('.link');
 
     // Labels
     let labels = this.chart.select('.labels').selectAll("text")
@@ -248,12 +248,12 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     labels
       .enter().append("text")
       .attr("dy", ".35")
-      .call(self.wrap)
       .merge(labels)
       .text(function (d) {
         return d.title;
       });
     labels = this.chart.selectAll('.labels text');
+    labels.call(self.wrap);
 
     this.simulation
       .nodes(self.data.nodes)
@@ -280,7 +280,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         .attr("y", function (d) {
           return d.y + 3;
         });
-      labels.selectAll('tspan').attr('x', d => d.x);
+      labels.selectAll('tspan').attr('x', d => d.x).attr('y', d => d.y);
     }
 
     function linkArc(d) {
@@ -392,7 +392,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         word,
         line = [],
         lineNumber = 0,
-        lineHeight = 1.1, // ems
+        lineHeight = 1.0, // ems
         y = text.attr("y"),
         x = text.attr("x"),
         dy = parseFloat(text.attr("dy")),
