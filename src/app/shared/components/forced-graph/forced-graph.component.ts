@@ -98,13 +98,12 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     this.simulation = d3.forceSimulation()
       .force("link", d3.forceLink().id(function (d) {
         return d['indexCaseId'];
-      }).distance(100))
+      }).distance(130))
       .force("collide", d3.forceCollide(function (d) {
         return d['r'];
       }))
-      .force("charge", d3.forceManyBody().strength(-500))
-      .force("center", d3.forceCenter(this.width / 2, this.height / 2))
-      .alphaTarget(1);
+      .force("charge", d3.forceManyBody().strength(-300))
+      .force("center", d3.forceCenter(this.width / 2, this.height / 2));
 
     this.color = d3.scaleOrdinal(d3.schemeCategory20);
 
@@ -260,7 +259,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       .on("tick", ticked);
     this.simulation.force("link")
       .links(self.data.links);
-    this.simulation.alpha(1).restart();
+    this.simulation.alpha(0.4).restart();
 
     function ticked() {
       paths.attr("d", linkArc);
