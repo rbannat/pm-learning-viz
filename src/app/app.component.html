@@ -9,6 +9,10 @@
       <a md-list-item routerLink="/index-cases" class="nav-link" routerLinkActive="active">Index Cases</a>
     </md-nav-list>
   </md-sidenav>
+  <md-sidenav #end align="end" mode="side">
+    End Sidenav.
+    <button md-button (click)="end.close()">Close</button>
+  </md-sidenav>
 
   <div class="main-content" fxLayout="column">
 
