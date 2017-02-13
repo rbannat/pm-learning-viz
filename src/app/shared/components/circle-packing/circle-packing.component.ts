@@ -141,7 +141,6 @@ export class CirclePackingComponent implements OnInit, OnChanges {
 
     this.focus = this.data;
     this.nodes = this.pack(this.data).descendants();
-    this.view;
 
     this.circle = this.chart.selectAll("circle")
       .data(this.nodes)

@@ -327,17 +327,17 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     // count indexCases for ALL updatecases
     let indexCaseCounts = _.countBy(updateCases, 'indexCaseId');
 
-    // filter UPDATEs
+    // get update casess of type UPDATE
     let updates = _.filter(updateCases, uc => uc.updateType === 'UPDATE');
 
-    // only create links for nodes where indexCase exists
+    // get update cases only for existing indexCases as source and target
     updates = _.filter(updates, uc => {
       let target = _.find(indexCases, ic => ic.id === uc.indexCaseId);
       let source = _.find(indexCases, ic => ic.id === uc.source);
       return typeof source !== 'undefined' && typeof target !== 'undefined';
     });
 
-    // store nodes with updates
+    // create unique nodes from filtered update cases' source and target index cases
     let targetNodes = _.uniqBy(updates, 'indexCaseId').map(item => {
         return {
           indexCaseId: item.indexCaseId,
@@ -356,10 +356,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         }
       }
     );
-
     graphData.nodes = _.unionBy(targetNodes, sourceNodes, 'indexCaseId');
 
-    // create links
+    // create unique links from update cases (source -> target != target -> source)
     let links = [];
     _.each(updates, item => {
 
@@ -371,6 +370,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       }
     });
 
+    // add number of update cases as value
     links = _.map(links, link => {
       return {
         source: link.source,
