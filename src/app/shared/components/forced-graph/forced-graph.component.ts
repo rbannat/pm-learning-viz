@@ -361,11 +361,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     // create unique links from update cases (source -> target != target -> source)
     let links = [];
     _.each(updates, item => {
-
-      if (!_.some(links, {
-          'indexCaseId': item.indexCaseId,
-          'source': item.source
-        }) || !_.some(links, {'indexCaseId': item.source, 'source': item.indexCaseId})) {
+      if (!_.some(links, link => {
+          return (link.indexCaseId === item.indexCaseId && link.source === item.source) || (link.source === item.indexCaseId && link.indexCaseId === item.source);
+        })) {
         links.push(item);
       }
     });
