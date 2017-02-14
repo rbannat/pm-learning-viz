@@ -10,8 +10,12 @@
     </md-nav-list>
   </md-sidenav>
   <md-sidenav #end align="end" mode="side">
-    End Sidenav.
-    <button md-button (click)="end.close()">Close</button>
+    <md-toolbar>
+      <span class="example-fill-remaining-space"></span>
+      <button class="pull-right" md-button (click)="end.close()">Close</button>
+    </md-toolbar>
+
+    <app-filter></app-filter>
   </md-sidenav>
 
   <div class="main-content" fxLayout="column">

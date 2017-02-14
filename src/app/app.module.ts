@@ -22,8 +22,10 @@ import { UpdatesBarchartComponent } from './shared/components/updates-barchart/u
 import { CirclePackingComponent } from './shared/components/circle-packing/circle-packing.component';
 
 import { UpdateCaseService } from './shared/services/update-case.service';
+import { FilterService } from './shared/services/filter.service';
 import { ColorsService } from './shared/services/colors.service';
 import { IndexCasesListComponent } from './shared/components/index-cases-list/index-cases-list.component';
+import { FilterComponent } from './shared/components/filter/filter/filter.component';
 
 
 @NgModule({
@@ -42,7 +44,8 @@ import { IndexCasesListComponent } from './shared/components/index-cases-list/in
     IndexCaseComponent,
     UpdatesBarchartComponent,
     CirclePackingComponent,
-    IndexCasesListComponent
+    IndexCasesListComponent,
+    FilterComponent
   ],
   imports: [
     BrowserModule,
@@ -52,7 +55,7 @@ import { IndexCasesListComponent } from './shared/components/index-cases-list/in
     MaterialModule,
     FlexLayoutModule
   ],
-  providers: [UpdateCaseService, ColorsService],
+  providers: [UpdateCaseService, ColorsService, FilterService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
