@@ -10,7 +10,8 @@
     </md-nav-list>
   </md-sidenav>
 
-  <div class="main-content">
+  <div class="main-content" fxLayout="column">
+
     <md-toolbar color="primary">
       <span>{{title}}</span>
 
@@ -18,10 +19,15 @@
       <span class="example-fill-remaining-space"></span>
 
       <!--<md-input-container>-->
-        <!--<input md-input type="search" placeholder="Search">-->
+      <!--<input md-input type="search" placeholder="Search">-->
       <!--</md-input-container>-->
 
+      <button md-button (click)="end.open()">Filter</button>
     </md-toolbar>
-    <router-outlet></router-outlet>
+
+    <div class="main-content__outlet" fxFlex>
+      <router-outlet></router-outlet>
+    </div>
+
   </div>
 </md-sidenav-container>
