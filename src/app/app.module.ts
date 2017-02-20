@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { MaterialModule } from '@angular/material';
-import { FlexLayoutModule } from '@angular/flex-layout';
+import { FlexLayoutModule } from '@angular/flex-layout/flexbox';
 import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
@@ -49,8 +49,8 @@ import { IndexCasesListComponent } from './shared/components/index-cases-list/in
     FormsModule,
     AppRoutingModule,
     HttpModule,
-    MaterialModule.forRoot(),
-    FlexLayoutModule.forRoot()
+    MaterialModule,
+    FlexLayoutModule
   ],
   providers: [UpdateCaseService, ColorsService],
   bootstrap: [AppComponent]

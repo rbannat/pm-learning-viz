@@ -38,7 +38,6 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
   ngOnInit() {
 
     this.getCustomers();
-    this.initChart();
 
     Promise.all<Customer[]>([
       this.customersPromise
@@ -51,6 +50,7 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
 
         this.loading = false;
 
+        this.initChart();
         this.updateChart();
 
       })

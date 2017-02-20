@@ -40,7 +40,6 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.getCustomers();
-    this.initChart();
 
     this.customersPromise.then((response) => {
 
@@ -49,6 +48,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
       this.customers = response;
       this.updateCases = this.updateCaseService.getRealUpdateCases(response);
 
+      this.initChart();
       this.updateChart();
     });
   }

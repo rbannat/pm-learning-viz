@@ -46,8 +46,6 @@ export class CirclePackingComponent implements OnInit, OnChanges {
 
   ngOnInit() {
 
-    this.initChart();
-
     this.getCustomers();
     this.getIndexCases();
 
@@ -94,6 +92,7 @@ export class CirclePackingComponent implements OnInit, OnChanges {
           })
         };
 
+        this.initChart();
         this.updateChart();
 
       })

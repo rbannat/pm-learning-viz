@@ -109,7 +109,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
     // xDomain
-    let xDomain = [0, d3.max(this.data, d => d['updateCases'].length)];
+    let xDomain:any = [0, d3.max(this.data, d => d['updateCases'].length)];
     // xScale
     this.xScale = d3.scaleLinear()
       .domain(xDomain)
@@ -182,7 +182,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     d3.select(element).select('svg').attr('width', element.offsetWidth);
     // xDomain
-    let xDomain = [0, d3.max(this.data, d => d['updateCases'].length)];
+    let xDomain:any = [0, d3.max(this.data, d => d['updateCases'].length)];
     // xScale
     this.xScale = d3.scaleLinear()
       .domain(xDomain)
