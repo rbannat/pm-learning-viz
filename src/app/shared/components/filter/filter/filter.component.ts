@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {FilterService} from 'app/shared/services/filter.service';
 import {Customer} from 'app/customer';
 import {IndexCase} from 'app/index-case';
 
@@ -16,7 +17,8 @@ export class FilterComponent implements OnInit {
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
 
-  constructor(private updateCaseService: UpdateCaseService) { }
+  constructor(private updateCaseService: UpdateCaseService,
+              private filterService: FilterService) { }
 
   ngOnInit() {
 
@@ -52,7 +54,9 @@ export class FilterComponent implements OnInit {
   }
 
   getCustomers(): void {
-    this.customersPromise = this.updateCaseService.getCustomers();
+
+    // get customers from filterService
+    this.customersPromise = this.filterService.getCustomers();
   }
 
   getIndexCases(): void {

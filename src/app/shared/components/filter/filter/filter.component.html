@@ -1,7 +1,7 @@
 <md-tab-group>
   <md-tab label="Customers">
     <md-card>
-      <md-checkbox *ngFor="let customer of customers">
+      <md-checkbox *ngFor="let customer of customers" [(ngModel)]="customer.visible">
         {{customer.customer}}
       </md-checkbox>
     </md-card>
