@@ -56,11 +56,15 @@ export class FilterComponent implements OnInit {
   getCustomers(): void {
 
     // get customers from filterService
-    this.customersPromise = this.filterService.getCustomers();
+    this.customersPromise = this.updateCaseService.getCustomers();
   }
 
   getIndexCases(): void {
     this.indexCasesPromise = this.updateCaseService.getIndexCases();
+  }
+
+  onChange(customer){
+    this.filterService.updateCustomerState(customer, customer['visible']);
   }
 
 }

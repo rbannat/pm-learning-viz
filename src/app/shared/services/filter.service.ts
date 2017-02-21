@@ -1,30 +1,33 @@
 import {Injectable} from '@angular/core';
 import {UpdateCaseService} from 'app/shared/services/update-case.service';
 import {Customer} from 'app/customer';
+import {Observable} from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class FilterService {
 
-  private customersPromise: Promise<Customer[]>;
+  customerStates: any[];
+  customerObservable: Subject<any> = new Subject<any>();
 
   constructor(private updateCaseService: UpdateCaseService) {
-    this.customersPromise = updateCaseService.getCustomers().then(customers => {
-      return customers.map(customer => {
+   updateCaseService.getCustomers().then(customers => {
+      this.customerStates = customers.map(customer => {
         customer['visible'] = true;
         return customer;
-      })
+      });
     });
   }
 
-  getfilteredCustomers(customers) {
-    return this.customersPromise
-      .then(customers => customers.filter(customer => {
-        return customers.find(e => e['customer'] === customer['customer'] && e['visible']);
-      }));
+  getfilteredCustomers() {
+      return this.customerStates.filter(customer => {
+        return this.customerStates.find(c => c.customer === customer['customer']).visible === true;
+      });
   }
 
-  getCustomers() {
-    return this.customersPromise;
+  updateCustomerState(customer, visible){
+    this.customerStates.find(c => c.customer === customer.customer).visible = visible;
+    this.customerObservable.next();
   }
 
 }

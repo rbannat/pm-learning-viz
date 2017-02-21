@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 import {UpdateCaseService} from '../shared/services/update-case.service';
+import {FilterService} from '../shared/services/filter.service';
 import {Customer} from 'app/customer';
 import {IndexCase} from 'app/index-case';
 
@@ -18,7 +19,9 @@ export class DashboardComponent implements OnInit {
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
 
-  constructor(private updateCaseService: UpdateCaseService) { }
+  constructor(private updateCaseService: UpdateCaseService,
+              private filterService: FilterService) {
+  }
 
   ngOnInit() {
     this.getCustomers();
@@ -32,7 +35,12 @@ export class DashboardComponent implements OnInit {
         // console.log('customers', customers);
         // console.log('indexCases', indexCases);
 
-        this.customerCount = customers.length;
+        this.customerCount = this.filterService.getfilteredCustomers().length;
+
+        this.filterService.customerObservable.subscribe(data => {
+          this.customerCount = this.filterService.getfilteredCustomers().length;
+        });
+
         this.updateCaseCount = this.updateCaseService.getRealUpdateCases(customers).length;
         this.indexCaseCount = indexCases.length;
 
