@@ -1,4 +1,4 @@
-import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {UpdateCaseService} from 'app/shared/services/update-case.service';
 import {FilterService} from 'app/shared/services/filter.service';
@@ -11,7 +11,7 @@ import * as _ from 'lodash';
   templateUrl: './customers-barchart.component.html',
   styleUrls: ['./customers-barchart.component.css']
 })
-export class CustomersBarchartComponent implements OnInit, OnChanges {
+export class CustomersBarchartComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() topX: number;
@@ -29,6 +29,8 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   private barHeight = 20;
   private leftMargin = 100;
   private customersPromise: Promise<any>;
+  private customerSubscription:any;
+  private sidebarSubscription:any;
   private data: any[];
   private customers: any;
   private updateCases: any;
@@ -41,12 +43,18 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
 
     //https://angular.io/docs/ts/latest/cookbook/component-communication.html#!#bidirectional-service
 
-    filterService.customerObservable.subscribe(data => {
-      this.customers = filterService.getFilteredCustomers();
-      this.updateChart();
+    this.customerSubscription = filterService.customerObservable.subscribe(data => {
+      this.getCustomers();
+      this.customersPromise.then((response) => {
+        this.customers = response;
+        this.updateCases = this.updateCaseService.getRealUpdateCases(response);
+        this.updateChart();
+        console.log('bar chart updated');
+      });
+
     });
 
-    filterService.sidebarObservable.subscribe(data => {
+    this.sidebarSubscription = filterService.sidebarObservable.subscribe(data => {
       this.resizeChart();
     });
 
@@ -58,8 +66,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
 
       this.loading = false;
 
-      // this.customers = response;
-      this.customers = this.filterService.getFilteredCustomers();
+      this.customers = response;
       this.updateCases = this.updateCaseService.getRealUpdateCases(response);
 
       this.initChart();
@@ -71,6 +78,11 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
     if (this.chart) {
       this.updateChart();
     }
+  }
+
+  ngOnDestroy() {
+    this.customerSubscription.unsubscribe();
+    this.sidebarSubscription.unsubscribe();
   }
 
   onResize() {
@@ -214,7 +226,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   }
 
   getCustomers(): void {
-    this.customersPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.filterService.getFilteredCustomers();
   }
 
   gotoDetail(customerId: number): void {

@@ -1,4 +1,4 @@
-import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {UpdateCaseService} from 'app/shared/services/update-case.service';
 import {FilterService} from 'app/shared/services/filter.service';
@@ -25,7 +25,7 @@ import * as _ from 'lodash';
   templateUrl: './forced-graph.component.html',
   styleUrls: ['./forced-graph.component.css']
 })
-export class ForcedGraphComponent implements OnInit, OnChanges {
+export class ForcedGraphComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() indexCaseId: number;
@@ -34,8 +34,11 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     height: 500
   };
 
-  private customersPromise: Promise<Customer[]>;
-  private indexCasesPromise: Promise<IndexCase[]>;
+  private customersPromise: Promise<any[]>;
+  private indexCasesPromise: Promise<any[]>;
+  private customerSubscription:any;
+  private indexCaseSubscription:any;
+  private sidebarSubscription:any;
   private indexCases: IndexCase[];
   private updateCases: any[];
   private loading: Boolean = true;
@@ -52,12 +55,25 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
   constructor(private updateCaseService: UpdateCaseService, private router: Router, private filterService: FilterService) {
     //https://angular.io/docs/ts/latest/cookbook/component-communication.html#!#bidirectional-service
 
-    filterService.indexCasesObservable.subscribe(data => {
-      this.indexCases = filterService.getFilteredIndexCases();
-      this.updateChart();
+    this.customerSubscription = filterService.customerObservable.subscribe(data => {
+      this.getCustomers();
+      this.customersPromise.then((response) => {
+        this.updateCases = this.updateCaseService.getRealUpdateCases(response);
+        this.updateChart();
+      });
+
     });
 
-    filterService.sidebarObservable.subscribe(data => {
+    this.indexCaseSubscription = filterService.indexCasesObservable.subscribe(data => {
+      this.getIndexCases();
+      this.indexCasesPromise.then((response) => {
+        this.indexCases = response;
+        this.updateChart();
+      });
+
+    });
+
+    this.sidebarSubscription = filterService.sidebarObservable.subscribe(data => {
       this.resizeChart();
     });
   }
@@ -78,7 +94,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
 
         // this.indexCases = indexCases;
-        this.indexCases = this.filterService.getFilteredIndexCases();
+        this.indexCases = indexCases;
 
         this.loading = false;
 
@@ -96,6 +112,12 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
     if (this.chart) {
       this.updateChart();
     }
+  }
+
+  ngOnDestroy() {
+    this.customerSubscription.unsubscribe();
+    this.indexCaseSubscription.unsubscribe();
+    this.sidebarSubscription.unsubscribe();
   }
 
   onResize() {
@@ -323,11 +345,11 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
   }
 
   getCustomers(): void {
-    this.customersPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.filterService.getFilteredCustomers();
   }
 
   getIndexCases(): void {
-    this.indexCasesPromise = this.updateCaseService.getIndexCases();
+    this.indexCasesPromise = this.filterService.getFilteredIndexCases();
   }
 
   getGraphData(indexCases: IndexCase[], updateCases: any[]): any {
