@@ -1,14 +1,14 @@
 <md-tab-group>
   <md-tab label="Customers">
     <md-card>
-      <md-checkbox *ngFor="let customer of customers" [(ngModel)]="customer.visible" (ngModelChange)="onChange(customer)">
+      <md-checkbox *ngFor="let customer of customers" [(ngModel)]="customer.visible" (ngModelChange)="onChangeCustomer(customer)">
         {{customer.customer}}
       </md-checkbox>
     </md-card>
   </md-tab>
   <md-tab label="Index Cases">
     <md-card>
-      <md-checkbox *ngFor="let indexCase of indexCases">
+      <md-checkbox *ngFor="let indexCase of indexCases" [(ngModel)]="indexCase.visible" (ngModelChange)="onChangeIndexCase(indexCase)">
         {{indexCase.representative}}
       </md-checkbox>
     </md-card>

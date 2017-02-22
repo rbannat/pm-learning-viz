@@ -1,6 +1,7 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {FilterService} from 'app/shared/services/filter.service';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
@@ -35,17 +36,26 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
   private svg: any;
 
   constructor(private updateCaseService: UpdateCaseService,
+              private filterService: FilterService,
               private router: Router) {
+
+    //https://angular.io/docs/ts/latest/cookbook/component-communication.html#!#bidirectional-service
+
+    filterService.customerObservable.subscribe(data => {
+      this.customers = filterService.getFilteredCustomers();
+      this.updateChart();
+    });
+
   }
 
   ngOnInit() {
     this.getCustomers();
-
     this.customersPromise.then((response) => {
 
       this.loading = false;
 
-      this.customers = response;
+      // this.customers = response;
+      this.customers = this.filterService.getFilteredCustomers();
       this.updateCases = this.updateCaseService.getRealUpdateCases(response);
 
       this.initChart();

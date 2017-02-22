@@ -1,6 +1,7 @@
 import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {FilterService} from 'app/shared/services/filter.service';
 import {Customer} from '../../../customer';
 import {IndexCase} from '../../../index-case';
 import * as d3 from 'd3';
@@ -48,7 +49,13 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
   private simulation: any;
   private color: any;
 
-  constructor(private updateCaseService: UpdateCaseService, private router: Router) {
+  constructor(private updateCaseService: UpdateCaseService, private router: Router, private filterService: FilterService) {
+    //https://angular.io/docs/ts/latest/cookbook/component-communication.html#!#bidirectional-service
+
+    filterService.indexCasesObservable.subscribe(data => {
+      this.indexCases = filterService.getFilteredIndexCases();
+      this.updateChart();
+    });
   }
 
   ngOnInit() {
@@ -65,7 +72,9 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
         // console.log('indexCases', indexCases);
 
         this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
-        this.indexCases = indexCases;
+
+        // this.indexCases = indexCases;
+        this.indexCases = this.filterService.getFilteredIndexCases();
 
         this.loading = false;
 
