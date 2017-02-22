@@ -56,6 +56,10 @@ export class ForcedGraphComponent implements OnInit, OnChanges {
       this.indexCases = filterService.getFilteredIndexCases();
       this.updateChart();
     });
+
+    filterService.sidebarObservable.subscribe(data => {
+      this.resizeChart();
+    });
   }
 
   ngOnInit() {

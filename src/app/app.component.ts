@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import {FilterService} from 'app/shared/services/filter.service';
 import {Router, ActivatedRouteSnapshot, NavigationEnd} from '@angular/router';
 
 @Component({
@@ -8,7 +9,7 @@ import {Router, ActivatedRouteSnapshot, NavigationEnd} from '@angular/router';
 })
 export class AppComponent {
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private filterService:FilterService) {}
 
   title: string;
 
@@ -26,7 +27,9 @@ export class AppComponent {
         this.title = this.getDeepestTitle(this.router.routerState.snapshot.root);
       }
     });
+  }
 
-
+  sidebarToggled(){
+    this.filterService.sidebarObservable.next();
   }
 }

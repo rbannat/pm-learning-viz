@@ -46,6 +46,10 @@ export class CustomersBarchartComponent implements OnInit, OnChanges {
       this.updateChart();
     });
 
+    filterService.sidebarObservable.subscribe(data => {
+      this.resizeChart();
+    });
+
   }
 
   ngOnInit() {

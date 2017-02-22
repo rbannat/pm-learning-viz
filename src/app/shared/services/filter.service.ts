@@ -9,6 +9,7 @@ export class FilterService {
   indexCasesStates: any[];
   customerObservable: Subject<any> = new Subject<any>();
   indexCasesObservable: Subject<any> = new Subject<any>();
+  sidebarObservable: Subject<any> = new Subject<any>();
 
   constructor(private updateCaseService: UpdateCaseService) {
    updateCaseService.getCustomers().then(customers => {
