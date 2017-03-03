@@ -1,7 +1,8 @@
-import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {UpdateCaseService} from 'app/shared/services/update-case.service';
 import {ColorsService} from 'app/shared/services/colors.service';
+import {FilterService} from 'app/shared/services/filter.service';
 import {Customer} from '../../../customer';
 import {IndexCase} from '../../../index-case';
 import * as d3 from 'd3';
@@ -13,7 +14,7 @@ import * as _ from 'lodash';
   templateUrl: './circle-packing.component.html',
   styleUrls: ['./circle-packing.component.css']
 })
-export class CirclePackingComponent implements OnInit, OnChanges {
+export class CirclePackingComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() indexCaseId: number;
@@ -22,6 +23,9 @@ export class CirclePackingComponent implements OnInit, OnChanges {
   private customers: Customer[];
   private indexCasesPromise: Promise<IndexCase[]>;
   private indexCases: IndexCase[];
+  private customerSubscription: any;
+  private indexCaseSubscription: any;
+  private sidebarSubscription: any;
   private updateCases: any[];
   private loading: Boolean = true;
   private data: any;
@@ -41,7 +45,34 @@ export class CirclePackingComponent implements OnInit, OnChanges {
   private node: any;
   private circle: any;
 
-  constructor(private updateCaseService: UpdateCaseService, private router: Router, private colorsService: ColorsService) {
+  constructor(private updateCaseService: UpdateCaseService,
+              private router: Router,
+              private colorsService: ColorsService,
+              private filterService: FilterService) {
+
+    this.customerSubscription = filterService.customerObservable.subscribe(data => {
+      this.getCustomers();
+      this.customersPromise.then((response) => {
+        this.updateCases = this.updateCaseService.getRealUpdateCases(response);
+        this.setData();
+        this.updateChart();
+      });
+
+    });
+
+    this.indexCaseSubscription = filterService.indexCasesObservable.subscribe(data => {
+      this.getIndexCases();
+      this.indexCasesPromise.then((response) => {
+        this.indexCases = response;
+        this.setData();
+        this.updateChart();
+      });
+
+    });
+
+    this.sidebarSubscription = filterService.sidebarObservable.subscribe(data => {
+      this.resizeChart();
+    });
   }
 
   ngOnInit() {
@@ -61,36 +92,7 @@ export class CirclePackingComponent implements OnInit, OnChanges {
         this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
         this.indexCases = indexCases;
 
-        this.loading = false;
-
-        // transform data
-        let nestedData = d3.nest()
-          .key(function (d) {
-            return d['topic'];
-          })
-          .key(function (d) {
-            return d['type'];
-          })
-          .entries(this.indexCases);
-
-        this.data = {
-          'name': 'root',
-          'children': nestedData.map(topic => {
-            return {
-              'name': topic.key, 'children': topic.values.map(actionType => {
-                return {
-                  'name': actionType.key, 'children': actionType.values.map(indexCase => {
-                    return {
-                      'name': indexCase.representative,
-                      'size': _.filter(this.updateCases, uc => uc.indexCaseId === indexCase.id).length,
-                      'id': indexCase.id
-                    }
-                  }).filter(ic => ic.size !== 0)
-                }
-              })
-            }
-          })
-        };
+        this.setData();
 
         this.initChart();
         this.updateChart();
@@ -100,6 +102,12 @@ export class CirclePackingComponent implements OnInit, OnChanges {
         // Receives first rejection among the Promises
         console.log(err);
       });
+  }
+
+  ngOnDestroy() {
+    this.customerSubscription.unsubscribe();
+    this.indexCaseSubscription.unsubscribe();
+    this.sidebarSubscription.unsubscribe();
   }
 
   initChart() {
@@ -126,6 +134,41 @@ export class CirclePackingComponent implements OnInit, OnChanges {
       .padding(2);
   }
 
+  setData() {
+
+    // transform data
+    let nestedData = d3.nest()
+      .key(function (d) {
+        return d['topic'];
+      })
+      .key(function (d) {
+        return d['type'];
+      })
+      .entries(this.indexCases);
+
+    this.data = {
+      'name': 'root',
+      'children': nestedData.map(topic => {
+        return {
+          'name': topic.key, 'children': topic.values.map(actionType => {
+            return {
+              'name': actionType.key, 'children': actionType.values.map(indexCase => {
+                return {
+                  'name': indexCase.representative,
+                  'size': _.filter(this.updateCases, uc => uc.indexCaseId === indexCase.id).length,
+                  'id': indexCase.id
+                }
+              }).filter(ic => ic.size !== 0)
+            }
+          })
+        }
+      })
+    };
+
+    this.loading = false;
+
+  }
+
   updateChart() {
 
     let self = this;
@@ -141,8 +184,13 @@ export class CirclePackingComponent implements OnInit, OnChanges {
     this.focus = this.data;
     this.nodes = this.pack(this.data).descendants();
 
-    this.circle = this.chart.selectAll("circle")
-      .data(this.nodes)
+    // remove all circles and redraw todo: use update selection
+    this.chart.selectAll("circle").remove();
+    this.chart.selectAll("text").remove();
+
+    let update = this.chart.selectAll("circle").data(this.nodes);
+    // ENTER
+    this.circle = update
       .enter().append("circle")
       .attr("class", function (d) {
         return d['parent'] ? d.children ? "node" : "node node--leaf" : "node node--root";
@@ -304,11 +352,11 @@ export class CirclePackingComponent implements OnInit, OnChanges {
   }
 
   getCustomers(): void {
-    this.customersPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.filterService.getFilteredCustomers();
   }
 
   getIndexCases(): void {
-    this.indexCasesPromise = this.updateCaseService.getIndexCases();
+    this.indexCasesPromise = this.filterService.getFilteredIndexCases();
   }
 
   gotoDetail(indexCaseId: number): void {
