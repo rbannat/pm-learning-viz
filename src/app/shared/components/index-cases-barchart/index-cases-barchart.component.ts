@@ -1,8 +1,9 @@
-import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
-import {Router} from '@angular/router';
-import {UpdateCaseService} from 'app/shared/services/update-case.service';
-import {Customer} from 'app/customer';
-import {IndexCase} from 'app/index-case';
+import { Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input } from '@angular/core';
+import { Router } from '@angular/router';
+import { UpdateCaseService } from 'app/shared/services/update-case.service';
+import { FilterService } from 'app/shared/services/filter.service';
+import { Customer } from 'app/customer';
+import { IndexCase } from 'app/index-case';
 import * as d3 from 'd3';
 
 @Component({
@@ -21,10 +22,16 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
 
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
+  private customers: Customer[];
+  private indexCases: IndexCase[]
+  private customerSubscription: any;
+  private indexCaseSubscription: any;
+  private sidebarSubscription: any;
   private loading: Boolean = true;
   private data: any = [];
 
-  private margin: any = {top: 10, bottom: 10, left: 10, right: 50};
+  private svg: any;
+  private margin: any = { top: 10, bottom: 10, left: 10, right: 50 };
   private chart: any;
   private width: number;
   private height: number;
@@ -33,7 +40,47 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   private barHeight = 40;
   private leftMargin = 150;
 
-  constructor(private updateCaseService: UpdateCaseService, private router: Router) {
+  constructor(
+    private updateCaseService: UpdateCaseService,
+    private filterService: FilterService,
+    private router: Router
+  ) {
+
+    this.customerSubscription = filterService.customerObservable.subscribe(data => {
+      this.getCustomers();
+
+      this.customersPromise.then((customers) => {
+        this.customers = customers;
+
+        this.setData();
+        this.updateChart();
+        console.log('index cases chart updated');
+      })
+        .catch(err => {
+          // Receives first rejection among the Promises
+          console.log(err);
+        });
+
+    });
+
+    this.indexCaseSubscription = filterService.indexCasesObservable.subscribe(data => {
+      this.getIndexCases();
+      this.indexCasesPromise.then((response) => {
+        this.indexCases = response;
+        this.setData();
+        this.updateChart();
+        console.log('index cases chart updated');
+      })
+        .catch(err => {
+          // Receives first rejection among the Promises
+          console.log(err);
+        });;
+
+    });
+
+    this.sidebarSubscription = filterService.sidebarObservable.subscribe(data => {
+      this.resizeChart();
+    });
   }
 
   ngOnInit() {
@@ -48,29 +95,10 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
         // console.log('customers', customers);
         // console.log('indexCases', indexCases);
 
-        let updateCases = this.updateCaseService.getRealUpdateCases(customers);
+        this.customers = customers;
+        this.indexCases = indexCases;
 
-        this.loading = false;
-
-        // create data array
-        indexCases.forEach(indexCase => {
-          let result = updateCases.filter(updateCase => {
-            return updateCase.indexCaseId === indexCase.id;
-          });
-          this.data.push({
-            id: indexCase.id,
-            label: indexCase.representative,
-            updateCases: result
-          });
-        });
-
-        this.data.sort(function (a, b) {
-          return b["updateCases"].length - a["updateCases"].length;
-        });
-
-        if (this.topX) {
-          this.data = this.data.slice(0, this.topX);
-        }
+        this.setData();
 
         this.initChart();
         this.updateChart();
@@ -92,6 +120,39 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
     this.resizeChart();
   }
 
+  ngOnDestroy() {
+    this.customerSubscription.unsubscribe();
+    this.indexCaseSubscription.unsubscribe();
+    this.sidebarSubscription.unsubscribe();
+  }
+
+  setData() {
+    this.data = [];
+    let updateCases = this.updateCaseService.getRealUpdateCases(this.customers);
+
+    // create data array
+    this.indexCases.forEach(indexCase => {
+      let result = updateCases.filter(updateCase => {
+        return updateCase.indexCaseId === indexCase.id;
+      });
+      this.data.push({
+        id: indexCase.id,
+        label: indexCase.representative,
+        updateCases: result
+      });
+    });
+
+    this.data.sort(function (a, b) {
+      return b["updateCases"].length - a["updateCases"].length;
+    });
+
+    if (this.topX) {
+      this.data = this.data.slice(0, this.topX);
+    }
+
+    this.loading = false;
+  }
+
   initChart() {
     let element = this.chartContainer.nativeElement;
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
@@ -99,17 +160,17 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
 
     // d3.select(element).html('<p class="lead">Number of Updatecases</p>');
 
-    let svg = d3.select(element).append('svg')
+    this.svg = d3.select(element).append('svg')
       .attr('width', element.offsetWidth)
       .attr('height', this.height);
 
     // chart area
-    this.chart = svg.append('g')
+    this.chart = this.svg.append('g')
       .attr('class', 'bars')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
     // xDomain
-    let xDomain:any = [0, d3.max(this.data, d => d['updateCases'].length)];
+    let xDomain: any = [0, d3.max(this.data, d => d['updateCases'].length)];
     // xScale
     this.xScale = d3.scaleLinear()
       .domain(xDomain)
@@ -121,6 +182,12 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   updateChart() {
 
     let self = this;
+
+  // Update SVG
+    this.height = this.barHeight * this.data.length + this.margin.top + this.margin.bottom;
+    this.svg.attr('height', this.height);
+
+  // Scales
     this.xScale.domain([0, d3.max(this.data, d => d['updateCases'].length)]);
 
     this.yScale
@@ -133,13 +200,10 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
     let update = this.chart.selectAll('.bar')
       .data(this.data);
 
-    // remove exiting bars
+    // EXIT
     update.exit().remove();
 
-    // update existing bars
-    // ...
-
-    // add new bars
+     // ENTER
     let bar = update
       .enter()
       .append('g')
@@ -172,8 +236,22 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
       .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
+      .text( (d) => {
+          return (this.xScale(d['updateCases'].length) < 20) ? '' : d['updateCases'].length;
+      });
+
+       // UPDATE
+    update.attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + this.yScale(d.id) + ')');
+    update.select('.label')
       .text(function (d) {
-        return (d['updateCases'].length);
+        return d['label'];
+      });
+    update.select('rect').transition().duration(300)
+      .attr("width", d => this.xScale(d['updateCases'].length))
+    update.select('.amount').transition().duration(300)
+       .attr("x", d => this.xScale(d['updateCases'].length) - 10)
+      .text((d) => {
+        return (this.xScale(d['updateCases'].length) < 20) ? '' : d['updateCases'].length;
       });
   }
 
@@ -182,7 +260,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
     d3.select(element).select('svg').attr('width', element.offsetWidth);
     // xDomain
-    let xDomain:any = [0, d3.max(this.data, d => d['updateCases'].length)];
+    let xDomain: any = [0, d3.max(this.data, d => d['updateCases'].length)];
     // xScale
     this.xScale = d3.scaleLinear()
       .domain(xDomain)
@@ -190,41 +268,45 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
 
     let update = this.chart.selectAll('.bar');
     update.select('rect').attr("width", d => this.xScale(d['updateCases'].length));
-    update.select('.amount').attr("x", d => this.xScale(d['updateCases'].length) - 10);
+    update.select('.amount')
+    .attr("x", d => this.xScale(d['updateCases'].length) - 10)
+    .text((d) => {
+        return (this.xScale(d['updateCases'].length) < 20) ? '' : d['updateCases'].length;
+      });
   }
 
 
- wrap(text:any, width) {
-    text.each(function(){
-    let text = d3.select(this),
-      words = text.text().split(/\s+/).reverse(),
-      word,
-      line = [],
-      lineNumber = 0,
-      lineHeight = 1.1, // ems
-      y = text.attr("y"),
-      x = text.attr("x"),
-      dy = parseFloat(text.attr("dy")),
-      tspan: any = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
-    while (word = words.pop()) {
-      line.push(word);
-      tspan.text(line.join(" "));
-      if (tspan.node().getComputedTextLength() > width) {
-        line.pop();
+  wrap(text: any, width) {
+    text.each(function () {
+      let text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        x = text.attr("x"),
+        dy = parseFloat(text.attr("dy")),
+        tspan: any = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+      while (word = words.pop()) {
+        line.push(word);
         tspan.text(line.join(" "));
-        line = [word];
-        tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+        if (tspan.node().getComputedTextLength() > width) {
+          line.pop();
+          tspan.text(line.join(" "));
+          line = [word];
+          tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+        }
       }
-    }
 
-    //vertical align center
-    if (lineNumber > 0){
-      text.selectAll('tspan').each(function(){
-        let tspan = d3.select(this);
-        let dy = parseFloat(tspan.attr("dy"));
-        tspan.attr('dy', dy - (lineNumber)/2 * lineHeight+ "em");
-      });
-    }
+      //vertical align center
+      if (lineNumber > 0) {
+        text.selectAll('tspan').each(function () {
+          let tspan = d3.select(this);
+          let dy = parseFloat(tspan.attr("dy"));
+          tspan.attr('dy', dy - (lineNumber) / 2 * lineHeight + "em");
+        });
+      }
     });
   }
 
@@ -267,11 +349,11 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges {
   }
 
   getCustomers(): void {
-    this.customersPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.filterService.getFilteredCustomers();
   }
 
   getIndexCases(): void {
-    this.indexCasesPromise = this.updateCaseService.getIndexCases();
+    this.indexCasesPromise = this.filterService.getFilteredIndexCases();
   }
 
   gotoDetail(indexCaseId: number): void {

@@ -293,7 +293,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges, OnDestroy {
       .on("tick", ticked);
     this.simulation.force("link")
       .links(self.data.links);
-    this.simulation.alpha(0.4).restart();
+    this.simulation.alpha(0.3).restart();
 
     function ticked() {
       paths.attr("d", linkArc);

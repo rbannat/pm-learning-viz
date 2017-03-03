@@ -190,8 +190,8 @@ export class CustomersBarchartComponent implements OnInit, OnChanges, OnDestroy 
       .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
-      .text(function (d) {
-        return (d['updateCaseCount'] < 5) ? '' : d['updateCaseCount'];
+      .text( (d) => {
+        return (this.xScale(d['updateCaseCount']) < 15) ? '' : d['updateCaseCount'];
       });
 
     // UPDATE
@@ -204,8 +204,8 @@ export class CustomersBarchartComponent implements OnInit, OnChanges, OnDestroy 
       .attr("width", d => this.xScale(d['updateCaseCount']));
     update.select('.amount').transition().duration(300)
       .attr("x", d => this.xScale(d['updateCaseCount']) - 3)
-      .text(function (d) {
-        return (d['updateCaseCount'] < 5) ? '' : d['updateCaseCount'];
+      .text( (d) => {
+        return (this.xScale(d['updateCaseCount']) < 15) ? '' : d['updateCaseCount'];
       });
   }
 
@@ -222,7 +222,11 @@ export class CustomersBarchartComponent implements OnInit, OnChanges, OnDestroy 
 
     let update = this.chart.selectAll('.bar');
     update.select('rect').attr("width", d => this.xScale(d['updateCaseCount']));
-    update.select('.amount').attr("x", d => this.xScale(d['updateCaseCount']) - 3);
+    update.select('.amount')
+    .attr("x", d => this.xScale(d['updateCaseCount']) - 3)
+     .text( (d) => {
+        return (this.xScale(d['updateCaseCount']) < 15) ? '' : d['updateCaseCount'];
+      });
   }
 
   getCustomers(): void {
