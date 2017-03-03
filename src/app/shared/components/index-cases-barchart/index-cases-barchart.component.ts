@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { UpdateCaseService } from 'app/shared/services/update-case.service';
 import { FilterService } from 'app/shared/services/filter.service';
@@ -12,7 +12,7 @@ import * as d3 from 'd3';
   templateUrl: './index-cases-barchart.component.html',
   styleUrls: ['./index-cases-barchart.component.css']
 })
-export class IndexCasesBarchartComponent implements OnInit, OnChanges {
+export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() topX: number;
