@@ -15,8 +15,9 @@
     <div class="main-content" fxLayout="column">
 
     <md-toolbar>
+      <span>Filter</span>
       <span class="example-fill-remaining-space"></span>
-      <button class="pull-right" md-button (click)="end.close()">Close</button>
+      <button class="pull-right" md-button (click)="end.close()"><md-icon class="md-24">clear</md-icon></button>
     </md-toolbar>
 
     <app-filter fxFlex></app-filter>
@@ -36,7 +37,7 @@
       <!--<input md-input type="search" placeholder="Search">-->
       <!--</md-input-container>-->
 
-      <button md-button (click)="end.open()">Filter</button>
+      <button md-button *ngIf="!end.opened" (click)="end.open()"><md-icon class="md-24">filter_list</md-icon></button>
     </md-toolbar>
 
     <div class="main-content__outlet" fxFlex>
