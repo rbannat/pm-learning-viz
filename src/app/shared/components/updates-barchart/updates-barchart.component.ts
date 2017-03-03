@@ -1,7 +1,9 @@
-import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
 
 import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {FilterService} from 'app/shared/services/filter.service';
+
 import {Customer} from '../../../customer';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
@@ -12,11 +14,13 @@ import * as _ from 'lodash';
   templateUrl: './updates-barchart.component.html',
   styleUrls: ['./updates-barchart.component.css']
 })
-export class UpdatesBarchartComponent implements OnInit, OnChanges {
+export class UpdatesBarchartComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() indexCaseId: number;
 
   private customersPromise: Promise<Customer[]>;
+  private customerSubscription: any;
+  private sidebarSubscription: any;
   private loading: boolean = true;
   private data: any[];
   private updateCases: any;
@@ -32,7 +36,20 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
   private x: any;
   private z: any;
 
-  constructor(private updateCaseService: UpdateCaseService, private router: Router) {
+  constructor(private updateCaseService: UpdateCaseService, private router: Router, private filterService: FilterService) {
+    this.customerSubscription = filterService.customerObservable.subscribe(data => {
+      this.getCustomers();
+      this.customersPromise.then((response) => {
+        this.customers = response;
+        this.updateCases = this.updateCaseService.getRealUpdateCases(this.customers);
+        this.updateChart();
+      });
+
+    });
+
+    this.sidebarSubscription = filterService.sidebarObservable.subscribe(data => {
+      this.resizeChart();
+    });
   }
 
   ngOnInit() {
@@ -64,6 +81,11 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
     if (this.chart) {
       this.updateChart();
     }
+  }
+
+  ngOnDestroy() {
+    this.customerSubscription.unsubscribe();
+    this.sidebarSubscription.unsubscribe();
   }
 
   onResize() {
@@ -228,6 +250,6 @@ export class UpdatesBarchartComponent implements OnInit, OnChanges {
 
 
   getCustomers(): void {
-    this.customersPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.filterService.getFilteredCustomers();
   }
 }
