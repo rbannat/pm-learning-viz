@@ -52,3 +52,11 @@ md-card {
 .provide-info {
   background-color: #03A9F4 !important; /*Light Blue*/
 }
+
+md-checkbox .mat-checkbox-inner-container {
+  margin-top: 0;
+}
+
+md-checkbox .mat-checkbox-layout .mat-checkbox-label {
+  line-height: 20px;
+}
