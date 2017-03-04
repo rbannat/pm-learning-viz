@@ -4,8 +4,8 @@
       <md-card-title>
         Total Customers
       </md-card-title>
-      <md-card-content *ngIf="customerCount">
-        <span class="pm-content-number"> {{customerCount}}</span>
+      <md-card-content *ngIf="customers">
+        <span class="pm-content-number"> {{customers.length}}</span>
       </md-card-content>
     </md-card>
   </div>
@@ -15,8 +15,8 @@
       <md-card-title>
         Total Index Cases
       </md-card-title>
-      <md-card-content *ngIf="indexCaseCount">
-        <span class="pm-content-number">{{indexCaseCount}}</span>
+      <md-card-content *ngIf="indexCases">
+        <span class="pm-content-number">{{indexCases.length}}</span>
       </md-card-content>
     </md-card>
   </div>
@@ -25,8 +25,8 @@
       <md-card-title>
         Total Update Cases
       </md-card-title>
-      <md-card-content *ngIf="updateCaseCount">
-        <span class="pm-content-number">{{updateCaseCount}}</span>
+      <md-card-content *ngIf="updateCases">
+        <span class="pm-content-number">{{updateCases.length}}</span>
       </md-card-content>
     </md-card>
   </div>

@@ -13,7 +13,7 @@ import {ColorsService} from "../shared/services/colors.service";
 export class IndexCaseDetailComponent implements OnInit {
 
   @Input() indexCase: IndexCase;
-  private actionTypeColor:string;
+  private actionTypeColor: string;
 
   constructor(private updateCaseService: DataService,
               private colorsService: ColorsService,

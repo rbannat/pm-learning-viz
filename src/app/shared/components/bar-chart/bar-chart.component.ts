@@ -1,12 +1,11 @@
 import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
-import {Router} from '@angular/router';
+import * as d3 from 'd3';
+import * as _ from 'lodash';
 
 import {DataService} from '../../services/data.service';
 import {FilterService} from 'app/shared/services/filter.service';
 
 import {Customer} from '../../../customer';
-import * as d3 from 'd3';
-import * as _ from 'lodash';
 
 @Component({
   selector: 'app-updates-barchart',
@@ -21,32 +20,40 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
   private customersPromise: Promise<Customer[]>;
   private customerSubscription: any;
   private sidebarSubscription: any;
-  private loading: boolean = true;
-  private data: any[];
   private updateCases: any;
   private customers: any;
+  private data: any[];
+  private loading: boolean = true;
 
-  private margin: any = {top: 10, bottom: 30, left: 30, right: 25};
-  private priority_order = ['NEW', 'UPDATE', 'DELETE'];
   private svg: any;
   private chart: any;
+  private margin: any = {top: 10, bottom: 30, left: 30, right: 25};
   private width: number;
   private height: number = 350;
   private y: any;
   private x: any;
   private z: any;
+  private priorityOrder = ['NEW', 'UPDATE', 'DELETE'];
 
-  constructor(private updateCaseService: DataService, private router: Router, private filterService: FilterService) {
+  constructor(private updateCaseService: DataService,
+              private filterService: FilterService) {
+
+    // update chart when customer filter changed
     this.customerSubscription = filterService.customerObservable.subscribe(data => {
+
       this.getCustomers();
-      this.customersPromise.then((response) => {
-        this.customers = response;
+
+      this.customersPromise.then((customers) => {
+        this.customers = customers;
         this.updateCases = this.updateCaseService.getRealUpdateCases(this.customers);
         this.updateChart();
-      });
-
+      })
+        .catch(err => {
+          console.log(err);
+        });
     });
 
+    // resize chart when filter is opened or closed
     this.sidebarSubscription = filterService.sidebarObservable.subscribe(data => {
       this.resizeChart();
     });
@@ -60,19 +67,18 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       this.customersPromise
     ])
       .then(([customers]) => {
-        // console.log('customers', customers);
+
+        this.initChart();
 
         this.customers = customers;
         this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
 
-        this.loading = false;
-
-        this.initChart();
         this.updateChart();
+
+        this.loading = false;
 
       })
       .catch(err => {
-        // Receives first rejection among the Promises
         console.log(err);
       });
   }
@@ -92,6 +98,9 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
     this.resizeChart();
   }
 
+  /**
+   *  Initializes chart elements.
+   */
   initChart() {
     let element = this.chartContainer.nativeElement;
     this.width = element.offsetWidth - this.margin.left - this.margin.right;
@@ -121,6 +130,9 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       .attr("class", "axis axis--y");
   }
 
+  /**
+   *  Re-renders chart with new input data.
+   */
   updateChart() {
 
     // Data
@@ -128,7 +140,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       .key(function (d) {
         return d['updateType'];
       }).sortKeys((a, b) => {
-        return this.priority_order.indexOf(a) - this.priority_order.indexOf(b);
+        return this.priorityOrder.indexOf(a) - this.priorityOrder.indexOf(b);
       })
       .rollup(function (d) {
         return d.length;
@@ -152,10 +164,14 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
     this.chart.select(".axis--y")
       .transition().duration(300).call(d3.axisLeft(this.y));
 
-    // Bars
+    // Bars selection
     let bars = this.chart.selectAll(".bar")
       .data(this.data);
+
+    // EXIT
     bars.exit().remove();
+
+    // ENTER
     bars.enter().append("rect")
       .attr("class", "bar")
       .attr("x", d => {
@@ -171,6 +187,8 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       .attr("fill", d => {
         return this.z(d.key);
       });
+
+    // UPDATE
     bars.transition().duration(300)
       .attr("x", d => {
         return this.x(d.key);
@@ -186,10 +204,14 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
         return this.z(d.key);
       });
 
-    // Value labels
+    // Value labels selection
     let values = this.chart.selectAll(".amount")
       .data(this.data);
+
+    // EXIT
     values.exit().remove();
+
+    // ENTER
     values
       .enter().append("text")
       .attr("x", d => {
@@ -203,6 +225,8 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       .text(function (d) {
         return d.value;
       });
+
+    // UPDATE
     values.transition().duration(300)
       .attr("x", d => {
         return this.x(d.key) + this.x.bandwidth() / 2;
@@ -210,24 +234,29 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       .attr("y", d => {
         return this.y(d.value) + 10;
       })
-      .attr("dy", ".35em")
-      .attr('class', 'amount')
       .text(function (d) {
         return d.value;
       });
 
   }
 
+  /**
+   *  Re-renders chart with new dimensions. Called on window size change.
+   */
   resizeChart() {
     let self = this;
     let element = self.chartContainer.nativeElement;
 
+    // update width
     self.width = element.offsetWidth - self.margin.left - self.margin.right;
 
+    // update svg width
     d3.select(element).select('svg').attr('width', element.offsetWidth);
 
+    // update x-scale range
     self.x.rangeRound([0, self.width]);
 
+    // update bars width
     self.chart
       .selectAll(".bar")
       .attr("x", d => {
@@ -235,7 +264,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       })
       .attr("width", self.x.bandwidth());
 
-    // amount labels
+    // update value labels position
     this.chart.selectAll(".amount")
       .attr("x", d => {
         return this.x(d.key) + this.x.bandwidth() / 2;
@@ -244,6 +273,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
         return this.y(d.value) + 10;
       });
 
+    // update x-axis labels
     d3.select(element).select('.axis--x')
       .call(d3.axisBottom(this.x));
   }

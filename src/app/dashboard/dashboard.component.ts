@@ -1,6 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 
 import {DataService} from '../shared/services/data.service';
+import {FilterService} from '../shared/services/filter.service';
 import {Customer} from 'app/customer';
 import {IndexCase} from 'app/index-case';
 
@@ -9,16 +10,46 @@ import {IndexCase} from 'app/index-case';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
 
-  private customerCount: number;
-  private indexCaseCount: number;
-  private updateCaseCount: number;
+  private customers: any;
+  private indexCases: any;
+  private updateCases: any;
 
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
+  private customerSubscription: any;
+  private indexCaseSubscription: any;
 
-  constructor(private updateCaseService: DataService) {
+  constructor(private updateCaseService: DataService,
+              private filterService: FilterService) {
+
+    this.customerSubscription = filterService.customerObservable.subscribe(data => {
+
+      this.getCustomers();
+
+      this.customersPromise.then((customers) => {
+        this.customers = customers;
+        this.updateCases = this.updateCaseService.getRealUpdateCases(this.customers);
+      })
+        .catch(err => {
+          console.log(err);
+        });
+
+    });
+
+    this.indexCaseSubscription = filterService.indexCasesObservable.subscribe(data => {
+
+      this.getIndexCases();
+
+      this.indexCasesPromise.then((indexCases) => {
+        this.indexCases = indexCases;
+      })
+        .catch(err => {
+          console.log(err);
+        });
+
+    });
   }
 
   ngOnInit() {
@@ -30,12 +61,10 @@ export class DashboardComponent implements OnInit {
       this.indexCasesPromise,
     ])
       .then(([customers, indexCases]) => {
-        // console.log('customers', customers);
-        // console.log('indexCases', indexCases);
 
-        this.customerCount = customers.length;
-        this.updateCaseCount = this.updateCaseService.getRealUpdateCases(customers).length;
-        this.indexCaseCount = indexCases.length;
+        this.customers = customers;
+        this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
+        this.indexCases = indexCases;
 
       })
       .catch(err => {
@@ -44,12 +73,17 @@ export class DashboardComponent implements OnInit {
       });
   }
 
+  ngOnDestroy() {
+    this.customerSubscription.unsubscribe();
+    this.indexCaseSubscription.unsubscribe();
+  }
+
   getCustomers(): void {
-    this.customersPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.filterService.getFilteredCustomers();
   }
 
   getIndexCases(): void {
-    this.indexCasesPromise = this.updateCaseService.getIndexCases();
+    this.indexCasesPromise = this.filterService.getFilteredIndexCases();
   }
 
 }

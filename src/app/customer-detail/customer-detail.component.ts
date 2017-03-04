@@ -1,6 +1,5 @@
 import {Component, OnInit, Input} from '@angular/core';
 import {ActivatedRoute, Params}   from '@angular/router';
-import {Location}                 from '@angular/common';
 import {DataService} from '../shared/services/data.service';
 import 'rxjs/add/operator/switchMap';
 
@@ -16,8 +15,7 @@ export class CustomerDetailComponent implements OnInit {
   @Input() customer: any;
 
   constructor(private updateCaseService: DataService,
-              private route: ActivatedRoute,
-              private location: Location) {
+              private route: ActivatedRoute) {
   }
 
   ngOnInit() {
@@ -27,9 +25,4 @@ export class CustomerDetailComponent implements OnInit {
         this.customer = customer;
       });
   }
-
-  goBack(): void {
-    this.location.back();
-  }
-
 }
