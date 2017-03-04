@@ -1,7 +1,9 @@
-import {Component, OnInit, OnChanges, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
 
 import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {FilterService} from 'app/shared/services/filter.service';
+
 import {Customer} from '../../../customer';
 import {IndexCase} from '../../../index-case';
 import * as d3 from 'd3';
@@ -13,7 +15,7 @@ import * as _ from 'lodash';
   templateUrl: './customer-multi-barchart.component.html',
   styleUrls: ['./customer-multi-barchart.component.css']
 })
-export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
+export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() customerId: any;
 
@@ -22,9 +24,14 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
 
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
+  private customerSubscription:any;
+  private indexCaseSubscription:any;
+  private sidebarSubscription:any;
   private loading: Boolean = true;
   private data: any[];
   private customer: any;
+  private indexCases: any;
+  private customers: any;
   private updateCases: any;
 
   private margin: any = {top: 10, bottom: 10, left: 150, right: 25};
@@ -40,7 +47,31 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
   private keys: string[];
 
 
-  constructor(private updateCaseService: UpdateCaseService, private router: Router) {
+  constructor(private updateCaseService: UpdateCaseService, private router: Router, private filterService: FilterService) {
+    this.customerSubscription = filterService.customerObservable.subscribe(data => {
+      this.getCustomers();
+      this.customersPromise.then((response) => {
+        this.customers = response;
+        this.updateCases = this.updateCaseService.getRealUpdateCases(response);
+        this.setData();
+        this.updateChart();
+      });
+
+    });
+
+    this.indexCaseSubscription = filterService.indexCasesObservable.subscribe(data => {
+      this.getIndexCases();
+      this.indexCasesPromise.then((response) => {
+        this.indexCases = response;
+        this.setData();
+        this.updateChart();
+      });
+
+    });
+
+    this.sidebarSubscription = filterService.sidebarObservable.subscribe(data => {
+      this.resizeChart();
+    });
   }
 
   ngOnInit() {
@@ -55,39 +86,10 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
         // console.log('customers', customers);
         // console.log('indexCases', indexCases);
 
-        this.customer = customers.find(customer => customer.id === this.customerId);
-        this.updateCases = this.updateCaseService.getRealUpdateCases(customers);
+        this.customers = customers;
+        this.indexCases = indexCases;
 
-
-        //todo: show all index cases
-        this.data = d3.nest<any, number>()
-          .key(function (d) {
-            return d['indexCaseId'];
-          })
-          .key(function (d) {
-            return d['updateType'];
-          })
-          .rollup(function (d) {
-            return d.length;
-          })
-          .entries(_.filter(this.updateCases, (o) => {
-            if (o['customerId'] === this.customer.id) return o
-          }));
-
-        this.data = _.filter(this.data, item => indexCases.some(indexCase => indexCase.id == item.key));
-
-        // add index case name
-        this.data.map(item => {
-          item.label = indexCases.find(ic => ic.id === parseInt(item.key)).representative;
-          return item;
-        });
-
-        // sort by number of total updatecases
-        this.data = _.sortBy(this.data, function (el) {
-          return _.sumBy(el['values'], (o) => o['value']);
-        }).reverse();
-
-        this.loading = false;
+        this.setData();
 
         this.initChart();
         this.updateChart();
@@ -105,8 +107,50 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
     }
   }
 
+  ngOnDestroy() {
+    this.customerSubscription.unsubscribe();
+    this.indexCaseSubscription.unsubscribe();
+    this.sidebarSubscription.unsubscribe();
+  }
+
   onResize() {
     this.resizeChart();
+  }
+
+  setData(){
+    this.customer = this.customers.find(customer => customer.id === this.customerId);
+    this.updateCases = this.updateCaseService.getRealUpdateCases(this.customers);
+
+
+    //todo: show all index cases
+    this.data = d3.nest<any, number>()
+      .key(function (d) {
+        return d['indexCaseId'];
+      })
+      .key(function (d) {
+        return d['updateType'];
+      })
+      .rollup(function (d) {
+        return d.length;
+      })
+      .entries(_.filter(this.updateCases, (o) => {
+        if (o['customerId'] === this.customer.id) return o
+      }));
+
+    this.data = _.filter(this.data, item => this.indexCases.some(indexCase => indexCase.id == item.key));
+
+    // add index case name
+    this.data.map(item => {
+      item.label = this.indexCases.find(ic => ic.id === parseInt(item.key)).representative;
+      return item;
+    });
+
+    // sort by number of total updatecases
+    this.data = _.sortBy(this.data, function (el) {
+      return _.sumBy(el['values'], (o) => o['value']);
+    }).reverse();
+
+    this.loading = false;
   }
 
   initChart() {
@@ -347,11 +391,11 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges {
   }
 
   getCustomers(): void {
-    this.customersPromise = this.updateCaseService.getCustomers();
+    this.customersPromise = this.filterService.getFilteredCustomers();
   }
 
   getIndexCases(): void {
-    this.indexCasesPromise = this.updateCaseService.getIndexCases();
+    this.indexCasesPromise = this.filterService.getFilteredIndexCases();
   }
 
   gotoDetail(indexCaseId: number): void {
