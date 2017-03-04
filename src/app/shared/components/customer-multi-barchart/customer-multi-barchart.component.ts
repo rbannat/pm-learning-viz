@@ -37,6 +37,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
   private margin: any = {top: 10, bottom: 10, left: 150, right: 25};
   private svg: any;
   private chart: any;
+  private legend: any;
   private width: number;
   private height: number;
   private barGroupHeight = 60;
@@ -182,6 +183,12 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
     // chart area
     this.chart = this.svg.append('g')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
+
+    this.legend = this.chart.append("g")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 10)
+      .attr("text-anchor", "end")
+      .attr("class", "legend")
   }
 
   updateChart() {
@@ -249,11 +256,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
       })
       .call(this.wrap, this.margin.left - 9);
 
-    let legend = this.chart.append("g")
-      .attr("font-family", "sans-serif")
-      .attr("font-size", 10)
-      .attr("text-anchor", "end")
-      .attr("class", "legend")
+   let legend = this.legend
       .selectAll("g")
       .data(self.keys)
       .enter().append("g")
