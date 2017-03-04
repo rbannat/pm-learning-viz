@@ -24,9 +24,9 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
 
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
-  private customerSubscription:any;
-  private indexCaseSubscription:any;
-  private sidebarSubscription:any;
+  private customerSubscription: any;
+  private indexCaseSubscription: any;
+  private sidebarSubscription: any;
   private loading: Boolean = true;
   private data: any[];
   private customer: any;
@@ -38,6 +38,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
   private svg: any;
   private chart: any;
   private legend: any;
+  private barGroups: any;
   private width: number;
   private height: number;
   private barGroupHeight = 60;
@@ -118,7 +119,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
     this.resizeChart();
   }
 
-  setData(){
+  setData() {
     this.customer = this.customers.find(customer => customer.id === this.customerId);
     this.updateCases = this.updateCaseService.getRealUpdateCases(this.customers);
 
@@ -188,7 +189,12 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
       .attr("font-family", "sans-serif")
       .attr("font-size", 10)
       .attr("text-anchor", "end")
-      .attr("class", "legend")
+      .attr("class", "legend");
+
+    this.chart.append("g")
+      .attr("class", "axis y--axis");
+
+    this.barGroups = this.chart.append("g").attr("class", "barGroups");
   }
 
   updateChart() {
@@ -208,21 +214,31 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
       });
     })]).nice();
 
-    let barGroup = this.chart.append("g")
+
+    let barGroup = this.barGroups
       .selectAll("g")
-      .data(this.data)
+      .data(this.data);
+
+    barGroup.exit().remove();
+    barGroup
       .enter().append("g")
       .attr("transform", function (d) {
         return "translate(0," + self.y0(d.label) + ")";
       })
       .attr('class', 'bars');
 
-    let bar = barGroup.selectAll("rect")
+    barGroup.selectAll(".bars").transition()
+      .attr("transform", function (d) {
+        return "translate(0," + self.y0(d.label) + ")";
+      });
+
+    let bar = this.chart.selectAll(".bars").selectAll("rect")
       .attr('class', 'bar')
       .data(function (d) {
         return d.values;
       });
 
+    bar.exit().remove();
     bar.enter().append("rect")
       .attr("x", function (d) {
         return 0;
@@ -238,7 +254,26 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
         return self.z(d.key);
       });
 
-    bar.enter().append("text")
+    bar.transition()
+      .attr("y", function (d) {
+        return self.y1(d.key);
+      })
+      .attr("height", self.y1.bandwidth())
+      .attr("width", function (d) {
+        return self.x(d.value);
+      })
+      .attr("fill", function (d) {
+        return self.z(d.key);
+      });
+
+    // Value labels
+    let values = this.chart.selectAll(".bars").selectAll("text")
+      .data(function (d) {
+        return d.values;
+      });
+    values.exit().remove();
+    values
+      .enter().append("text")
       .attr("x", d => self.x(d.value) - 3)
       .attr("y", d => self.y1(d.key) + self.y1.bandwidth() / 2)
       .attr("dy", ".35em")
@@ -246,9 +281,14 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
       .text(function (d) {
         return d.value;
       });
+    values.transition()
+      .attr("x", d => self.x(d.value) - 3)
+      .attr("y", d => self.y1(d.key) + self.y1.bandwidth() / 2)
+      .text(function (d) {
+        return d.value;
+      });
 
-    this.chart.append("g")
-      .attr("class", "axis y--axis")
+    this.chart.select(".y--axis")
       .call(d3.axisLeft(self.y0))
       .selectAll(".tick text")
       .on('click', (d, i) => {
@@ -256,7 +296,8 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
       })
       .call(this.wrap, this.margin.left - 9);
 
-   let legend = this.legend
+    // add legend
+    let legend = this.legend
       .selectAll("g")
       .data(self.keys)
       .enter().append("g")
