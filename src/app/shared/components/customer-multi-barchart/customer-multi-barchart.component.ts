@@ -223,7 +223,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
     barGroup
       .enter().append("g")
       .attr("transform", function (d) {
-        return "translate(0," + self.y0(d.label) + ")";
+        return "translate(1," + self.y0(d.label) + ")";
       })
       .attr('class', 'bars');
 
@@ -278,14 +278,14 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
       .attr("y", d => self.y1(d.key) + self.y1.bandwidth() / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
-      .text(function (d) {
-        return d.value;
+      .text( (d) => {
+        return (self.x(d.value) - 3 > 5 ) ? d.value : '';
       });
     values.transition()
       .attr("x", d => self.x(d.value) - 3)
       .attr("y", d => self.y1(d.key) + self.y1.bandwidth() / 2)
-      .text(function (d) {
-        return d.value;
+      .text( (d) => {
+        return (self.x(d.value) - 3 > 5 ) ? d.value : '';
       });
 
     this.chart.select(".y--axis")
@@ -338,7 +338,10 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
 
     self.chart
       .selectAll(".amount")
-      .attr("x", d => self.x(d.value) - 3);
+      .attr("x", d => self.x(d.value) - 3)
+      .text( (d) => {
+        return (self.x(d.value) - 3 > 5 ) ? d.value : '';
+      });
 
     //update legend
     let legend = self.chart
