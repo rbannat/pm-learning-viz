@@ -2,21 +2,15 @@
   <md-progress-bar mode="indeterminate" color="primary"></md-progress-bar>
 </div>
 
-<div *ngIf="!loading">
+<div *ngIf="!loading" class="pm-chart-filter-container">
   <md-select id="order" [ngModel]="orderBy" (ngModelChange)="order($event)" placeholder="Order By">
     <md-option [value]="'custcat'">Customer and Index Case</md-option>
     <md-option [value]="'cust'">Customer</md-option>
     <md-option [value]="'cat'">Index Case</md-option>
     <md-option [value]="'custom'">Custom Order</md-option>
   </md-select>
-
-  <!--<md-select id="order" [ngModel]="orderBy" (ngModelChange)="order($event)" placeholder="Order By">-->
-  <!--<md-option value="custcat">Customer and Index Case</md-option>-->
-  <!--<md-option value="cust">Customer</md-option>-->
-  <!--<md-option value="cat">Index Case</md-option>-->
-  <!--<md-option value="custom">Custom Order</md-option>-->
-  <!--</md-select>-->
 </div>
+
 <div class="d3-heatmap-table" #chart (window:resize)="onResize($event)">
   <div id="tooltip" class="hidden">
     <p id="customer"></p>

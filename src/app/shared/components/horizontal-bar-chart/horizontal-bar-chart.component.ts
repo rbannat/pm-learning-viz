@@ -20,7 +20,16 @@ export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy
   private orderBy: string = 'value';
   private sortDesc: boolean = true;
 
-  private margin: any = {top: 20, bottom: 10, left: 10, right: 25};
+  private customersPromise: Promise<any>;
+  private customerSubscription: any;
+  private sidebarSubscription: any;
+  private customers: any;
+  private updateCases: any;
+  private loading: Boolean = true;
+  private data: any[];
+
+  private svg: any;
+  private margin: any = {top: 10, bottom: 10, left: 10, right: 25};
   private chart: any;
   private width: number;
   private height: number;
@@ -28,14 +37,6 @@ export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy
   private yScale: any;
   private barHeight = 20;
   private leftMargin = 100;
-  private customersPromise: Promise<any>;
-  private customerSubscription:any;
-  private sidebarSubscription:any;
-  private data: any[];
-  private customers: any;
-  private updateCases: any;
-  private loading: Boolean = true;
-  private svg: any;
 
   constructor(private updateCaseService: DataService,
               private filterService: FilterService,
@@ -44,12 +45,20 @@ export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy
     //https://angular.io/docs/ts/latest/cookbook/component-communication.html#!#bidirectional-service
 
     this.customerSubscription = filterService.customerObservable.subscribe(data => {
+
       this.getCustomers();
+
       this.customersPromise.then((response) => {
         this.customers = response;
         this.updateCases = this.updateCaseService.getRealUpdateCases(response);
+
+        this.setData();
+
         this.updateChart();
-      });
+      })
+        .catch(err => {
+          console.log(err);
+        });
 
     });
 
@@ -61,16 +70,23 @@ export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy
 
   ngOnInit() {
     this.getCustomers();
-    this.customersPromise.then((response) => {
 
-      this.loading = false;
+    this.customersPromise.then((customers) => {
 
-      this.customers = response;
-      this.updateCases = this.updateCaseService.getRealUpdateCases(response);
+      this.customers = customers;
+      this.updateCases = this.updateCaseService.getRealUpdateCases(this.customers);
+
+      this.setData();
 
       this.initChart();
+
       this.updateChart();
-    });
+
+      this.loading = false;
+    })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   ngOnChanges() {
@@ -88,30 +104,7 @@ export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy
     this.resizeChart();
   }
 
-  initChart() {
-    let element = this.chartContainer.nativeElement;
-    this.width = element.offsetWidth - this.margin.left - this.margin.right;
-
-
-    // d3.select(element).html('<p class="lead">Number of Updatecases</p>');
-
-    this.svg = d3.select(element).append('svg')
-      .attr('width', element.offsetWidth);
-
-
-    // chart area
-    this.chart = this.svg.append('g')
-      .attr('class', 'bars')
-      .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
-
-    // scales
-    this.xScale = d3.scaleLinear()
-      .range([0, this.width - this.leftMargin]);
-
-    this.yScale = d3.scaleBand();
-  }
-
-  updateChart() {
+  setData() {
 
     let customers = this.customers;
     let updateCases = this.updateCases;
@@ -139,6 +132,32 @@ export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy
     if (this.topX) {
       this.data = this.data.slice(0, this.topX);
     }
+
+  }
+
+  initChart() {
+    let element = this.chartContainer.nativeElement;
+    this.width = element.offsetWidth - this.margin.left - this.margin.right;
+
+    // d3.select(element).html('<p class="lead">Number of Updatecases</p>');
+
+    this.svg = d3.select(element).append('svg')
+      .attr('width', element.offsetWidth);
+
+
+    // chart area
+    this.chart = this.svg.append('g')
+      .attr('class', 'bars')
+      .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
+
+    // scales
+    this.xScale = d3.scaleLinear()
+      .range([0, this.width - this.leftMargin]);
+
+    this.yScale = d3.scaleBand();
+  }
+
+  updateChart() {
 
     // Update SVG
     this.height = this.barHeight * this.data.length + this.margin.top + this.margin.bottom;
@@ -189,7 +208,7 @@ export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy
       .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
-      .text( (d) => {
+      .text((d) => {
         return (this.xScale(d['updateCaseCount']) < 15) ? '' : d['updateCaseCount'];
       });
 
@@ -203,7 +222,7 @@ export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy
       .attr("width", d => this.xScale(d['updateCaseCount']));
     update.select('.amount').transition().duration(300)
       .attr("x", d => this.xScale(d['updateCaseCount']) - 3)
-      .text( (d) => {
+      .text((d) => {
         return (this.xScale(d['updateCaseCount']) < 15) ? '' : d['updateCaseCount'];
       });
   }
@@ -222,18 +241,10 @@ export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy
     let update = this.chart.selectAll('.bar');
     update.select('rect').attr("width", d => this.xScale(d['updateCaseCount']));
     update.select('.amount')
-    .attr("x", d => this.xScale(d['updateCaseCount']) - 3)
-     .text( (d) => {
+      .attr("x", d => this.xScale(d['updateCaseCount']) - 3)
+      .text((d) => {
         return (this.xScale(d['updateCaseCount']) < 15) ? '' : d['updateCaseCount'];
       });
-  }
-
-  getCustomers(): void {
-    this.customersPromise = this.filterService.getFilteredCustomers();
-  }
-
-  gotoDetail(customerId: number): void {
-    this.router.navigate(['/customers', customerId]);
   }
 
   changeSortOrder() {
@@ -272,6 +283,14 @@ export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy
       .transition()
       .duration(300)
       .attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + this.yScale(d.customer) + ')');
+  }
+
+  getCustomers(): void {
+    this.customersPromise = this.filterService.getFilteredCustomers();
+  }
+
+  gotoDetail(customerId: number): void {
+    this.router.navigate(['/customers', customerId]);
   }
 
 }

@@ -1,8 +1,8 @@
 <div class="flex-container" fxLayout="row">
-  <div fxFlex="25%">
+  <div fxFlex>
     <md-card>
       <md-card-title>
-        Customers
+        Total Customers
       </md-card-title>
       <md-card-content *ngIf="customerCount">
         <span class="pm-content-number"> {{customerCount}}</span>
@@ -10,20 +10,20 @@
     </md-card>
   </div>
 
-  <div fxFlex="25%">
+  <div fxFlex>
     <md-card>
       <md-card-title>
-        Index Cases
+        Total Index Cases
       </md-card-title>
       <md-card-content *ngIf="indexCaseCount">
         <span class="pm-content-number">{{indexCaseCount}}</span>
       </md-card-content>
     </md-card>
   </div>
-  <div fxFlex="25%">
+  <div fxFlex>
     <md-card>
       <md-card-title>
-        Update Cases
+        Total Update Cases
       </md-card-title>
       <md-card-content *ngIf="updateCaseCount">
         <span class="pm-content-number">{{updateCaseCount}}</span>
@@ -36,7 +36,7 @@
   <div fxFlex="50%">
     <md-card>
       <md-card-title>
-        Top Customers
+        Most Active Customers
       </md-card-title>
       <md-card-subtitle>by Number of Update Cases</md-card-subtitle>
       <app-customers-barchart [topX]=10></app-customers-barchart>
@@ -49,7 +49,7 @@
   <div fxFlex="50%">
     <md-card>
       <md-card-title>
-        Top Index Cases
+        Most Used Index Cases
       </md-card-title>
       <md-card-subtitle>by Number of Update Cases</md-card-subtitle>
       <app-index-cases-barchart [topX]=5></app-index-cases-barchart>
@@ -73,7 +73,7 @@
   <div fxFlex="50%">
     <md-card>
       <md-card-title>
-        Last Modified Index Cases
+        Latest Index Case Updates
       </md-card-title>
 
       <md-card-content>

@@ -1,6 +1,6 @@
 app-customers-barchart .d3-barchart {
   overflow: hidden;
-  max-height: 450px;
+  max-height: 500px;
   overflow-y: auto;
 }
 

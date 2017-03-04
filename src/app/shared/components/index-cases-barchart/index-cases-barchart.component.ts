@@ -1,9 +1,9 @@
-import { Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input } from '@angular/core';
-import { Router } from '@angular/router';
-import { DataService } from '../../services/data.service';
-import { FilterService } from 'app/shared/services/filter.service';
-import { Customer } from 'app/customer';
-import { IndexCase } from 'app/index-case';
+import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
+import {Router} from '@angular/router';
+import {DataService} from '../../services/data.service';
+import {FilterService} from 'app/shared/services/filter.service';
+import {Customer} from 'app/customer';
+import {IndexCase} from 'app/index-case';
 import * as d3 from 'd3';
 
 @Component({
@@ -23,7 +23,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
   private customers: Customer[];
-  private indexCases: IndexCase[]
+  private indexCases: IndexCase[];
   private customerSubscription: any;
   private indexCaseSubscription: any;
   private sidebarSubscription: any;
@@ -31,7 +31,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
   private data: any = [];
 
   private svg: any;
-  private margin: any = { top: 10, bottom: 10, left: 10, right: 50 };
+  private margin: any = {top: 10, bottom: 10, left: 10, right: 25};
   private chart: any;
   private width: number;
   private height: number;
@@ -40,41 +40,41 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
   private barHeight = 40;
   private leftMargin = 150;
 
-  constructor(
-    private updateCaseService: DataService,
-    private filterService: FilterService,
-    private router: Router
-  ) {
+  constructor(private updateCaseService: DataService,
+              private filterService: FilterService,
+              private router: Router) {
 
     this.customerSubscription = filterService.customerObservable.subscribe(data => {
+
       this.getCustomers();
 
       this.customersPromise.then((customers) => {
+
         this.customers = customers;
 
         this.setData();
+
         this.updateChart();
-        console.log('index cases chart updated');
+
       })
         .catch(err => {
-          // Receives first rejection among the Promises
           console.log(err);
         });
 
     });
 
     this.indexCaseSubscription = filterService.indexCasesObservable.subscribe(data => {
+
       this.getIndexCases();
+
       this.indexCasesPromise.then((response) => {
         this.indexCases = response;
         this.setData();
         this.updateChart();
-        console.log('index cases chart updated');
       })
         .catch(err => {
-          // Receives first rejection among the Promises
           console.log(err);
-        });;
+        });
 
     });
 
@@ -92,8 +92,6 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
       this.indexCasesPromise,
     ])
       .then(([customers, indexCases]) => {
-        // console.log('customers', customers);
-        // console.log('indexCases', indexCases);
 
         this.customers = customers;
         this.indexCases = indexCases;
@@ -101,11 +99,12 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
         this.setData();
 
         this.initChart();
+
         this.updateChart();
 
+        this.loading = false;
       })
       .catch(err => {
-        // Receives first rejection among the Promises
         console.log(err);
       });
   }
@@ -116,14 +115,14 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
     }
   }
 
-  onResize() {
-    this.resizeChart();
-  }
-
   ngOnDestroy() {
     this.customerSubscription.unsubscribe();
     this.indexCaseSubscription.unsubscribe();
     this.sidebarSubscription.unsubscribe();
+  }
+
+  onResize() {
+    this.resizeChart();
   }
 
   setData() {
@@ -150,7 +149,6 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
       this.data = this.data.slice(0, this.topX);
     }
 
-    this.loading = false;
   }
 
   initChart() {
@@ -183,11 +181,11 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
 
     let self = this;
 
-  // Update SVG
+    // Update SVG
     this.height = this.barHeight * this.data.length + this.margin.top + this.margin.bottom;
     this.svg.attr('height', this.height);
 
-  // Scales
+    // Scales
     this.xScale.domain([0, d3.max(this.data, d => d['updateCases'].length)]);
 
     this.yScale
@@ -203,7 +201,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
     // EXIT
     update.exit().remove();
 
-     // ENTER
+    // ENTER
     let bar = update
       .enter()
       .append('g')
@@ -236,11 +234,11 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
       .attr("y", this.barHeight / 2)
       .attr("dy", ".35em")
       .attr('class', 'amount')
-      .text( (d) => {
-          return (this.xScale(d['updateCases'].length) < 20) ? '' : d['updateCases'].length;
+      .text((d) => {
+        return (this.xScale(d['updateCases'].length) < 20) ? '' : d['updateCases'].length;
       });
 
-       // UPDATE
+    // UPDATE
     update.attr('transform', (d, i) => 'translate(' + this.leftMargin + ',' + this.yScale(d.id) + ')');
     update.select('.label')
       .text(function (d) {
@@ -249,7 +247,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
     update.select('rect').transition().duration(300)
       .attr("width", d => this.xScale(d['updateCases'].length))
     update.select('.amount').transition().duration(300)
-       .attr("x", d => this.xScale(d['updateCases'].length) - 10)
+      .attr("x", d => this.xScale(d['updateCases'].length) - 10)
       .text((d) => {
         return (this.xScale(d['updateCases'].length) < 20) ? '' : d['updateCases'].length;
       });
@@ -269,8 +267,8 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
     let update = this.chart.selectAll('.bar');
     update.select('rect').attr("width", d => this.xScale(d['updateCases'].length));
     update.select('.amount')
-    .attr("x", d => this.xScale(d['updateCases'].length) - 10)
-    .text((d) => {
+      .attr("x", d => this.xScale(d['updateCases'].length) - 10)
+      .text((d) => {
         return (this.xScale(d['updateCases'].length) < 20) ? '' : d['updateCases'].length;
       });
   }
