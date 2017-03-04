@@ -1,6 +1,6 @@
 import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
-import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {DataService} from '../../services/data.service';
 import {FilterService} from 'app/shared/services/filter.service';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
@@ -8,10 +8,10 @@ import * as _ from 'lodash';
 @Component({
   selector: 'app-customers-barchart',
   encapsulation: ViewEncapsulation.None,
-  templateUrl: './customers-barchart.component.html',
-  styleUrls: ['./customers-barchart.component.css']
+  templateUrl: 'horizontal-bar-chart.component.html',
+  styleUrls: ['horizontal-bar-chart.component.css']
 })
-export class CustomersBarchartComponent implements OnInit, OnChanges, OnDestroy {
+export class HorizontalBarChartComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() topX: number;
@@ -37,7 +37,7 @@ export class CustomersBarchartComponent implements OnInit, OnChanges, OnDestroy 
   private loading: Boolean = true;
   private svg: any;
 
-  constructor(private updateCaseService: UpdateCaseService,
+  constructor(private updateCaseService: DataService,
               private filterService: FilterService,
               private router: Router) {
 
@@ -49,7 +49,6 @@ export class CustomersBarchartComponent implements OnInit, OnChanges, OnDestroy 
         this.customers = response;
         this.updateCases = this.updateCaseService.getRealUpdateCases(response);
         this.updateChart();
-        console.log('bar chart updated');
       });
 
     });

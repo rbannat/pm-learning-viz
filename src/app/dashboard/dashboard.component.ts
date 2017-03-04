@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 
-import {UpdateCaseService} from '../shared/services/update-case.service';
+import {DataService} from '../shared/services/data.service';
 import {Customer} from 'app/customer';
 import {IndexCase} from 'app/index-case';
 
@@ -18,7 +18,7 @@ export class DashboardComponent implements OnInit {
   private customersPromise: Promise<Customer[]>;
   private indexCasesPromise: Promise<IndexCase[]>;
 
-  constructor(private updateCaseService: UpdateCaseService) {
+  constructor(private updateCaseService: DataService) {
   }
 
   ngOnInit() {

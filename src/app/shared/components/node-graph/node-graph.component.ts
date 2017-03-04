@@ -1,6 +1,6 @@
 import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
-import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {DataService} from '../../services/data.service';
 import {FilterService} from 'app/shared/services/filter.service';
 import {Customer} from '../../../customer';
 import {IndexCase} from '../../../index-case';
@@ -22,10 +22,10 @@ import * as _ from 'lodash';
 @Component({
   selector: 'app-forced-graph',
   encapsulation: ViewEncapsulation.None,
-  templateUrl: './forced-graph.component.html',
-  styleUrls: ['./forced-graph.component.css']
+  templateUrl: 'node-graph.component.html',
+  styleUrls: ['node-graph.component.css']
 })
-export class ForcedGraphComponent implements OnInit, OnChanges, OnDestroy {
+export class NodeGraphComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() indexCaseId: number;
@@ -52,7 +52,7 @@ export class ForcedGraphComponent implements OnInit, OnChanges, OnDestroy {
   private simulation: any;
   private color: any;
 
-  constructor(private updateCaseService: UpdateCaseService, private router: Router, private filterService: FilterService) {
+  constructor(private updateCaseService: DataService, private router: Router, private filterService: FilterService) {
     //https://angular.io/docs/ts/latest/cookbook/component-communication.html#!#bidirectional-service
 
     this.customerSubscription = filterService.customerObservable.subscribe(data => {

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { UpdateCaseService } from 'app/shared/services/update-case.service';
+import { DataService } from '../../services/data.service';
 import { FilterService } from 'app/shared/services/filter.service';
 import { Customer } from 'app/customer';
 import { IndexCase } from 'app/index-case';
@@ -41,7 +41,7 @@ export class IndexCasesBarchartComponent implements OnInit, OnChanges, OnDestroy
   private leftMargin = 150;
 
   constructor(
-    private updateCaseService: UpdateCaseService,
+    private updateCaseService: DataService,
     private filterService: FilterService,
     private router: Router
   ) {

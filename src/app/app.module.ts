@@ -9,19 +9,19 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { CustomersBarchartComponent } from './shared/components/customers-barchart/customers-barchart.component';
-import { ForcedGraphComponent } from './shared/components/forced-graph/forced-graph.component';
+import { HorizontalBarChartComponent } from './shared/components/horizontal-bar-chart/horizontal-bar-chart.component';
+import { NodeGraphComponent } from './shared/components/node-graph/node-graph.component';
 import { CustomersComponent } from './customers/customers.component';
 import { IndexCasesComponent } from './index-cases/index-cases.component';
 import { IndexCasesBarchartComponent } from './shared/components/index-cases-barchart/index-cases-barchart.component';
-import { CustomersIcTableComponent } from './shared/components/customers-ic-table/customers-ic-table.component';
-import { CustomerComponent } from './customer/customer.component';
-import { CustomerMultiBarchartComponent } from './shared/components/customer-multi-barchart/customer-multi-barchart.component';
-import { IndexCaseComponent } from './index-case/index-case.component';
-import { UpdatesBarchartComponent } from './shared/components/updates-barchart/updates-barchart.component';
-import { CirclePackingComponent } from './shared/components/circle-packing/circle-packing.component';
+import { HeatmapMatrixComponent } from './shared/components/heatmap-matrix/heatmap-matrix.component';
+import { CustomerDetailComponent } from './customer-detail/customer-detail.component';
+import { MultiBarChartComponent } from './shared/components/multi-bar-chart/multi-bar-chart.component';
+import { IndexCaseDetailComponent } from './index-case-detail/index-case-detail.component';
+import { BarChartComponent } from './shared/components/bar-chart/bar-chart.component';
+import { CirclePackingChartComponent } from './shared/components/circle-packing-chart/circle-packing-chart.component';
 
-import { UpdateCaseService } from './shared/services/update-case.service';
+import { DataService } from './shared/services/data.service';
 import { FilterService } from './shared/services/filter.service';
 import { ColorsService } from './shared/services/colors.service';
 import { IndexCasesListComponent } from './shared/components/index-cases-list/index-cases-list.component';
@@ -33,17 +33,17 @@ import { FilterComponent } from './shared/components/filter/filter.component';
     AppComponent,
     DashboardComponent,
     PageNotFoundComponent,
-    CustomersBarchartComponent,
-    ForcedGraphComponent,
+    HorizontalBarChartComponent,
+    NodeGraphComponent,
     CustomersComponent,
     IndexCasesComponent,
     IndexCasesBarchartComponent,
-    CustomersIcTableComponent,
-    CustomerComponent,
-    CustomerMultiBarchartComponent,
-    IndexCaseComponent,
-    UpdatesBarchartComponent,
-    CirclePackingComponent,
+    HeatmapMatrixComponent,
+    CustomerDetailComponent,
+    MultiBarChartComponent,
+    IndexCaseDetailComponent,
+    BarChartComponent,
+    CirclePackingChartComponent,
     IndexCasesListComponent,
     FilterComponent
   ],
@@ -55,7 +55,7 @@ import { FilterComponent } from './shared/components/filter/filter.component';
     MaterialModule,
     FlexLayoutModule
   ],
-  providers: [UpdateCaseService, ColorsService, FilterService],
+  providers: [DataService, ColorsService, FilterService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

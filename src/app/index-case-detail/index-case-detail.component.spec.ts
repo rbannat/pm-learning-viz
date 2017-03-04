@@ -3,21 +3,21 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { IndexCaseComponent } from './index-case.component';
+import { IndexCaseDetailComponent } from './index-case-detail.component';
 
-describe('IndexCaseComponent', () => {
-  let component: IndexCaseComponent;
-  let fixture: ComponentFixture<IndexCaseComponent>;
+describe('IndexCaseDetailComponent', () => {
+  let component: IndexCaseDetailComponent;
+  let fixture: ComponentFixture<IndexCaseDetailComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ IndexCaseComponent ]
+      declarations: [ IndexCaseDetailComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(IndexCaseComponent);
+    fixture = TestBed.createComponent(IndexCaseDetailComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

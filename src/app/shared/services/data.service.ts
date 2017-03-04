@@ -7,7 +7,7 @@ import 'rxjs/add/operator/toPromise';
 import * as _ from 'lodash';
 
 @Injectable()
-export class UpdateCaseService {
+export class DataService {
 
   private customersUrl = 'assets/customers.json'; // customers with updatecases
   private indexCasesUrl = 'assets/index-cases.json'; // indexcases

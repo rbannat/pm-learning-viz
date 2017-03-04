@@ -1,5 +1,5 @@
 import {Component, OnInit, Input} from '@angular/core';
-import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {DataService} from '../../services/data.service';
 import {IndexCase} from '../../../index-case';
 
 @Component({
@@ -15,7 +15,7 @@ export class IndexCasesListComponent implements OnInit {
   private indexCases: any = [];
   private indexCasesPromise: Promise<IndexCase[]>;
 
-  constructor(private updateCaseService: UpdateCaseService) {
+  constructor(private updateCaseService: DataService) {
   }
 
   ngOnInit() {

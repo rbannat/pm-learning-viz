@@ -3,11 +3,11 @@ import {
   Router, Resolve, RouterStateSnapshot,
   ActivatedRouteSnapshot
 } from '@angular/router';
-import {UpdateCaseService} from './update-case.service';
+import {DataService} from './data.service';
 
 @Injectable()
 export class IndexCaseResolver implements Resolve<number> {
-  constructor(private us: UpdateCaseService, private router: Router) {
+  constructor(private us: DataService, private router: Router) {
   }
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<number> {

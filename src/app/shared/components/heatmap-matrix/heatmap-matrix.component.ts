@@ -1,5 +1,5 @@
 import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation} from '@angular/core';
-import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {DataService} from '../../services/data.service';
 import {ColorsService} from 'app/shared/services/colors.service';
 import {FilterService} from 'app/shared/services/filter.service';
 import {Customer} from '../../../customer';
@@ -11,10 +11,10 @@ import * as _ from 'lodash';
 @Component({
   selector: 'app-customers-ic-table',
   encapsulation: ViewEncapsulation.None,
-  templateUrl: './customers-ic-table.component.html',
-  styleUrls: ['./customers-ic-table.component.css']
+  templateUrl: 'heatmap-matrix.component.html',
+  styleUrls: ['heatmap-matrix.component.css']
 })
-export class CustomersIcTableComponent implements OnInit, OnChanges, OnDestroy {
+export class HeatmapMatrixComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('chart') private chartContainer: ElementRef;
 
@@ -48,7 +48,7 @@ export class CustomersIcTableComponent implements OnInit, OnChanges, OnDestroy {
   private colors: string[];
   private colorScale: any;
 
-  constructor(private updateCaseService: UpdateCaseService,
+  constructor(private updateCaseService: DataService,
               private colorsService: ColorsService,
               private filterService: FilterService) {
 

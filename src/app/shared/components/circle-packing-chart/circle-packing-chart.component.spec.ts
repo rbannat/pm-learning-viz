@@ -3,21 +3,21 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { CustomersIcTableComponent } from './customers-ic-table.component';
+import { CirclePackingChartComponent } from './circle-packing-chart.component';
 
-describe('CustomersIcTableComponent', () => {
-  let component: CustomersIcTableComponent;
-  let fixture: ComponentFixture<CustomersIcTableComponent>;
+describe('CirclePackingChartComponent', () => {
+  let component: CirclePackingChartComponent;
+  let fixture: ComponentFixture<CirclePackingChartComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CustomersIcTableComponent ]
+      declarations: [ CirclePackingChartComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CustomersIcTableComponent);
+    fixture = TestBed.createComponent(CirclePackingChartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

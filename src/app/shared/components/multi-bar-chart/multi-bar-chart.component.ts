@@ -1,7 +1,7 @@
 import {Component, OnInit, OnChanges, OnDestroy, ViewChild, ElementRef, ViewEncapsulation, Input} from '@angular/core';
 import {Router} from '@angular/router';
 
-import {UpdateCaseService} from 'app/shared/services/update-case.service';
+import {DataService} from '../../services/data.service';
 import {FilterService} from 'app/shared/services/filter.service';
 
 import {Customer} from '../../../customer';
@@ -12,10 +12,10 @@ import * as _ from 'lodash';
 @Component({
   selector: 'app-customer-multi-barchart',
   encapsulation: ViewEncapsulation.None,
-  templateUrl: './customer-multi-barchart.component.html',
-  styleUrls: ['./customer-multi-barchart.component.css']
+  templateUrl: 'multi-bar-chart.component.html',
+  styleUrls: ['multi-bar-chart.component.css']
 })
-export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDestroy {
+export class MultiBarChartComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() customerId: any;
 
@@ -49,7 +49,7 @@ export class CustomerMultiBarchartComponent implements OnInit, OnChanges, OnDest
   private keys: string[];
 
 
-  constructor(private updateCaseService: UpdateCaseService, private router: Router, private filterService: FilterService) {
+  constructor(private updateCaseService: DataService, private router: Router, private filterService: FilterService) {
     this.customerSubscription = filterService.customerObservable.subscribe(data => {
       this.getCustomers();
       this.customersPromise.then((response) => {
