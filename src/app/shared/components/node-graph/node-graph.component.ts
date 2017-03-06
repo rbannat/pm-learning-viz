@@ -36,9 +36,9 @@ export class NodeGraphComponent implements OnInit, OnChanges, OnDestroy {
 
   private customersPromise: Promise<any[]>;
   private indexCasesPromise: Promise<any[]>;
-  private customerSubscription:any;
-  private indexCaseSubscription:any;
-  private sidebarSubscription:any;
+  private customerSubscription: any;
+  private indexCaseSubscription: any;
+  private sidebarSubscription: any;
   private indexCases: IndexCase[];
   private updateCases: any[];
   private loading: Boolean = true;
@@ -352,67 +352,89 @@ export class NodeGraphComponent implements OnInit, OnChanges, OnDestroy {
     this.indexCasesPromise = this.filterService.getFilteredIndexCases();
   }
 
+  /**
+   * Returns array of nodes and links to represent a node graph from given update cases and index cases.
+   * @param indexCases
+   * @param updateCases
+   * @returns {{nodes: Array, links: Array}}
+   */
   getGraphData(indexCases: IndexCase[], updateCases: any[]): any {
+
+    // initialize graph data
     let graphData = {
       nodes: [],
       links: []
     };
 
-    // count indexCases for ALL updatecases
+    // get list of index cases and counts resulting from ALL updatecases
     let indexCaseCounts = _.countBy(updateCases, 'indexCaseId');
 
-    // get update casess of type UPDATE
-    let updates = _.filter(updateCases, uc => uc.updateType === 'UPDATE');
+    // get update cases of type UPDATE
+    let updates = updateCases.filter(uc => uc.updateType === 'UPDATE');
 
-    // get update cases only for existing indexCases as source and target
-    updates = _.filter(updates, uc => {
-      let target = _.find(indexCases, ic => ic.id === uc.indexCaseId);
-      let source = _.find(indexCases, ic => ic.id === uc.source);
+    // get updates only for existing indexCases for source and target
+    updates = updates.filter(uc => {
+      let target = indexCases.find(ic => ic.id === uc.indexCaseId);
+      let source = indexCases.find(ic => ic.id === uc.source);
+
       return typeof source !== 'undefined' && typeof target !== 'undefined';
     });
 
-    // create unique nodes from filtered update cases' source and target index cases
-    let targetNodes = _.uniqBy(updates, 'indexCaseId').map(item => {
-        return {
-          indexCaseId: item.indexCaseId,
-          title: _.find(indexCases, ic => item.indexCaseId === ic.id)['representative'],
-          r: (indexCaseCounts[item.indexCaseId]) ? Math.sqrt(indexCaseCounts[item.indexCaseId]) * 4 + 5 : 5,
-          group: 1
-        }
-      }
-    );
-    let sourceNodes = _.uniqBy(updates, 'source').map(item => {
-        return {
-          indexCaseId: item.source,
-          title: _.find(indexCases, ic => item.source === ic.id)['representative'],
-          r: (indexCaseCounts[item.source]) ? Math.sqrt(indexCaseCounts[item.source]) * 4 + 5 : 5,
-          group: 1
-        }
-      }
-    );
-    graphData.nodes = _.unionBy(targetNodes, sourceNodes, 'indexCaseId');
-
-    // create unique links from update cases (source -> target != target -> source)
-    let links = [];
-    _.each(updates, item => {
-      if (!_.some(links, link => {
-          return (link.indexCaseId === item.indexCaseId && link.source === item.source) || (link.source === item.indexCaseId && link.indexCaseId === item.source);
-        })) {
-        links.push(item);
-      }
-    });
-
-    // add number of update cases as value
-    links = _.map(links, link => {
-      return {
-        source: link.source,
-        target: link.indexCaseId,
-        value: _.filter(updates, item => item.indexCaseId === link.indexCaseId && item.source === link.source).length
-      }
-    });
-    graphData.links = links;
+    graphData.nodes = getNodes(updates, indexCaseCounts, indexCases);
+    graphData.links = getLinks(updates);
 
     return graphData;
+
+    function getNodes(updates, indexCaseCounts, indexCases) {
+      // create unique nodes from filtered update cases' source and target index cases
+      let targetNodes = _.uniqBy(updates, 'indexCaseId').map(item => {
+          return {
+            indexCaseId: item.indexCaseId,
+            title: indexCases.find(ic => item.indexCaseId === ic.id)['representative'],
+            r: (indexCaseCounts[item.indexCaseId]) ? Math.sqrt(indexCaseCounts[item.indexCaseId]) * 4 + 5 : 5, // min radius = 5
+            group: 1
+          }
+        }
+      );
+
+      let sourceNodes = _.uniqBy(updates, 'source').map(item => {
+          return {
+            indexCaseId: item.source,
+            title: indexCases.find(ic => item.source === ic.id)['representative'],
+            r: (indexCaseCounts[item.source]) ? Math.sqrt(indexCaseCounts[item.source]) * 4 + 5 : 5, // min radius = 5
+            group: 1
+          }
+        }
+      );
+
+      // return merged nodes
+      return _.unionBy(targetNodes, sourceNodes, 'indexCaseId');
+    }
+
+    function getLinks(updates) {
+
+      // create unique links from update cases (source -> target != target -> source)
+      let links = [];
+      for (let item of updates) {
+        // add link if not in array
+        if (!_.some(links, link => {
+            return (link.indexCaseId === item.indexCaseId && link.source === item.source) || (link.source === item.indexCaseId && link.indexCaseId === item.source);
+          })) {
+          links.push(item);
+        }
+      }
+
+      // map number of update cases as value
+      links = _.map(links, link => {
+        return {
+          source: link.source,
+          target: link.indexCaseId,
+          value: _.filter(updates, item => item.indexCaseId === link.indexCaseId && item.source === link.source).length
+        }
+      });
+      return links;
+    }
+
   }
 
   wrap(text: any) {

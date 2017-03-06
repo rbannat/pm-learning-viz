@@ -18,13 +18,21 @@ export class DataService {
   constructor(private http: Http) {
   }
 
+  /**
+   * Returns promise of customers array from JSON object.
+   * @returns {Promise<Customer[]>}
+   */
   getCustomers(): Promise<Customer[]> {
+
+    // get customers if not cached
     if (!this.customersPromise) {
+
       this.customersPromise = this.http.get(this.customersUrl)
-        .toPromise()
+        .toPromise() // convert observable to promise
         .then(response => response.json() as Customer[])
         .catch(this.handleError);
     }
+
     return this.customersPromise;
   }
 
