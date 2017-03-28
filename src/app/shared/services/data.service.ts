@@ -78,14 +78,14 @@ export class DataService {
     let updateCases = [];
     for (let customer of customerData) {
       let i = 0;
-
+      customer.icuElements = _.sortBy(customer.icuElements, 'id');
       while (i < customer.icuElements.length) {
         let current = customer.icuElements[i];
         let next = customer.icuElements[i + 1];
 
         if (next !== undefined) {
           // store update
-          if (current.indexCaseId !== next.indexCaseId && current.surface === next.surface) {
+          if (current.indexCaseId !== next.indexCaseId && current.surface === next.surface && current.timeStamp === next.timeStamp) {
             let newUpdateCase = current;
             newUpdateCase.id = customer.id + '-' + current.id;
             newUpdateCase.customerId = customer.id;
